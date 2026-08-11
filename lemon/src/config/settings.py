@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -96,11 +97,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'lemon', # name of created/used database in mysql,
-        'USER': 'mysql_fid',
-        'PASSWORD': 'mysql_fid',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.environ.get('MYSQL_DATABASE', 'lemon'),
+        'USER': os.environ.get('MYSQL_USER', 'mysql_fid'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'mysql_fid'),
+        'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('MYSQL_PORT', '3306'),
     }
 }
 
@@ -149,8 +150,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS=[
-    'lemon/static',
+STATICFILES_DIRS = [
+    BASE_DIR / 'lemon' / 'static',
 ]
 
 # Default primary key field type

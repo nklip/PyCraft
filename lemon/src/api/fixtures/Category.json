@@ -1,6 +1,6 @@
 [
     {
-      "model": "lemon.category",
+      "model": "api.category",
       "pk": 1,
       "fields": {
         "slug": "main",
@@ -8,7 +8,7 @@
       }
     },
     {
-      "model": "lemon.category",
+      "model": "api.category",
       "pk": 2,
       "fields": {
         "slug": "dessert",
@@ -16,7 +16,7 @@
       }
     },
     {
-      "model": "lemon.category",
+      "model": "api.category",
       "pk": 3,
       "fields": {
         "slug": "drink",
@@ -24,7 +24,7 @@
       }
     },
     {
-      "model": "lemon.category",
+      "model": "api.category",
       "pk": 4,
       "fields": {
         "slug": "appetizer",

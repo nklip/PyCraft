@@ -1,6 +1,6 @@
 [
     {
-      "model": "lemon.meal",
+      "model": "api.meal",
       "pk": 1,
       "fields": {
         "name": "Bruschetta",
@@ -8,12 +8,12 @@
         "category": 4,
         "price": "7.35",
         "desc": "Bruschetta is an Italian antipasto consisting of grilled bread often topped with olive oil and salt. Most commonly it is served with toppings of tomato, vegetables, beans, cured meat, and/or cheese. In Italy, bruschetta is often prepared using a brustolina grill.",
-        "image": "/img/menu_items/Bruschetta.jpg",
+        "image": "img/menu_items/Bruschetta.jpg",
         "image_text": "Bruschetta"
       }
     },
     {
-      "model": "lemon.meal",
+      "model": "api.meal",
       "pk": 2,
       "fields": {
         "name": "Burger",
@@ -21,12 +21,12 @@
         "category": 1,
         "price": "12.50",
         "desc": "“Black Dog” burger features bone marrow butter, burger cheese, Lawson black pudding, caramelised onion, pickles, and burger sauce—a truly drool-worthy combination. They also offer unique options like the “Top Dog” burger with bone marrow and Roquefort butter, double bacon, caramelised onions and black truffle mayo, and the “NYC” burger with pastrami. They also have a veggie and vegan option – the Simplicity Burger and three varieties of fries.",
-        "image": "/img/menu_items/Burger.jpg",
+        "image": "img/menu_items/Burger.jpg",
         "image_text": "Burger"
       }
     },
     {
-      "model": "lemon.meal",
+      "model": "api.meal",
       "pk": 3,
       "fields": {
         "name": "Greek salad",
@@ -34,12 +34,12 @@
         "category": 4,
         "price": "8.25",
         "desc": "Greek salad or horiatiki salad is a popular salad in Greek cuisine generally made with pieces of tomatoes, cucumbers, onion, feta cheese, and olives and dressed with salt, Greek oregano, lemon juice and olive oil. Common additions include green bell pepper slices or caper berries.",
-        "image": "/img/menu_items/Greek salad.jpg",
+        "image": "img/menu_items/Greek salad.jpg",
         "image_text": "Greek salad"
       }
     },
     {
-      "model": "lemon.meal",
+      "model": "api.meal",
       "pk": 4,
       "fields": {
         "name": "Grilled fish",
@@ -47,12 +47,12 @@
         "category": 1,
         "price": "15.99",
         "desc": "Grilled fish is a delectable dish that combines fresh, high-quality fish with the smoky, savory flavors of an open flame or grill. The process typically begins with selecting a firm, fresh fish such as salmon, trout, or seabass. The fish is cleaned, scaled, and sometimes marinated with a mixture of herbs, spices, lemon juice, or other seasonings to enhance its natural flavors.\r\n\r\nGrilling fish requires careful attention to cooking time and temperature to avoid drying it out. Fish can be grilled whole, in fillets, or as steaks. When grilling whole fish, slits may be made in the flesh to allow seasonings to penetrate, and lemon or herbs can be inserted into the cavity for added flavor.\r\n\r\nThe grilling process imparts a smoky, charred taste and crispy exterior, while keeping the interior tender and juicy. Grilled fish pairs well with a variety of sides such as roasted vegetables, rice, or salads, making it a healthy and delicious meal option.",
-        "image": "/img/menu_items/Grilled fish.jpg",
+        "image": "img/menu_items/Grilled fish.jpg",
         "image_text": "Grilled fish"
       }
     },
     {
-      "model": "lemon.meal",
+      "model": "api.meal",
       "pk": 5,
       "fields": {
         "name": "Lemon dessert",
@@ -60,7 +60,7 @@
         "category": 2,
         "price": "8.99",
         "desc": "Lemon dessert is a refreshing and zesty treat that highlights the bright, tangy flavor of lemons. Popular options include lemon bars, lemon meringue pie, and lemon sorbet. These desserts often combine lemon juice and zest with sugar and eggs to create a delightful balance of sweet and tart flavors.",
-        "image": "/img/menu_items/Lemon dessert.jpg",
+        "image": "img/menu_items/Lemon dessert.jpg",
         "image_text": "Lemon dessert"
       }
     }

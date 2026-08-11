@@ -52,6 +52,10 @@ class Meal(models.Model):
     image      = models.CharField(max_length = 200, default = '')
     image_text = models.CharField(max_length = 200, default = '')
 
+    @property
+    def static_image_path(self):
+        return self.image.lstrip('/')
+
     # also show it in admin panel
     def __str__(self):
         return f"{self.name} - {self.price}"

@@ -1,20 +1,20 @@
 [
     {
-      "model": "lemon.cuisine",
+      "model": "api.cuisine",
       "pk": 1,
       "fields": {
         "name": "American"
       }
     },
     {
-      "model": "lemon.cuisine",
+      "model": "api.cuisine",
       "pk": 2,
       "fields": {
         "name": "Italian"
       }
     },
     {
-      "model": "lemon.cuisine",
+      "model": "api.cuisine",
       "pk": 3,
       "fields": {
         "name": "Japanese"

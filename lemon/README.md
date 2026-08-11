@@ -1,188 +1,166 @@
-# Little Lemon Backend in Python
+# Little Lemon Backend
 
-## How to ...
+Little Lemon is a Django and Django REST Framework application backed by MySQL.
 
-### How to install all dependencies on macOS
+## Project structure
 
-1. Install python
-```bash
-brew install python
+```text
+lemon/
+├── compose.yaml
+├── docker/
+│   └── mysql/
+│       └── init-test-permissions.sh
+├── requirements.txt
+├── run.sh
+└── src/
+    ├── manage.py
+    ├── api/
+    ├── config/
+    └── lemon/
 ```
 
-2. Activate virtual env
-```bash
-python -m venv .venv
-source .venv/bin/activate
-```
+The Python virtual environment is created at `lemon/.venv` and is isolated
+from the other PyCraft applications.
 
-3. Install Django
-```bash
-python -m pip install Django
-```
+## Requirements
 
-4. Install DRF
-```bash
-pip install djangorestframework
-```
+- Python 3.14
+- Docker Desktop with Docker Compose
+- Homebrew MySQL client libraries and `pkg-config` for building `mysqlclient`
 
-5. Install markdown
-```bash
-pip install markdown
-```
-
-6. Install django-filter
-```bash
-pip install django-filter
-```
-
-5. Install Djoser
-```bash
-pip install -U djoser
-```
-
-### How to debug
-
-In Visual Studio Code go to 'Run and Debug' screen on the rigth tab.
-
-Click 'create a launch.json file' -> Python -> Django -> now you can put your break points -> go to 'Run' on the top -> Start debugging
-
-### How to use profiling
-
-1. Install Django debug toolbar
-```bash
-pip3 install django-debug-toolbar
-```
-
-2. Add 'debug_toolbar' in INSTALLED_APPS
-
-3. Add next url in urlpatterns
-```bash
-path('__debug__', include('debug_toolbar.urls')),
-```
-
-4. Include middleware
-```bash
-'debug_toolbar.middleware.DebugToolbarMiddleware',
-```
-
-5. Add below section in settings.py
-```bash
-INTERNAL_IPS = [
-    '127.0.0.1'
-]
-```
-
-6. Profiling should be accessible on the right side API endpoint
-
-
-### How to setup your project in Visual Studio Code
-
-Install 'SQLite Viewer' plugin on your VS code
-
-### How to create a new app
+Install the native build dependencies on macOS:
 
 ```bash
-python manage.py startapp YOUR_APP_NAME
+brew install mysql pkg-config
 ```
 
-### How to create an admin user
+The Homebrew MySQL service does not need to run because MySQL runs in Docker.
+If another MySQL server already occupies port 3306, stop it before launching:
 
 ```bash
-python manage.py createsuperuser
+brew services stop mysql
 ```
 
-### How to make model migrations
+## Start the application
+
+Start Docker Desktop, then run this command from the top-level `PyCraft`
+directory:
 
 ```bash
-# creates file 0001_initial.py which creates a model file for API app
-python manage.py makemigrations api
-# creates file 0001_initial.py which creates a model file for Lemon app
-python manage.py makemigrations lemon
-# apply migrations
-python manage.py migrate
-# show all migrations
-python manage.py showmigrations
-# log into sqlite3 shell
-pythom manage.py dbshell
+./lemon/run.sh
 ```
 
-### How to test Django project
+The launcher:
+
+1. Creates `lemon/.venv` with Python 3.14 if it does not exist.
+2. Activates the virtual environment.
+3. Installs the pinned Python dependencies.
+4. Starts the MySQL 8.4 LTS container and waits for it to become healthy.
+5. Applies Django database migrations.
+6. Loads sample categories, cuisines, and meals when the meal table is empty.
+7. Starts the Django development server.
+
+Arguments are forwarded to Django's `runserver` command. For example:
+
+```bash
+./lemon/run.sh 0.0.0.0:8000
+```
+
+The default local database configuration is:
+
+- Database: `lemon`
+- User: `mysql_fid`
+- Password: `mysql_fid`
+- Host: `127.0.0.1:3306`
+
+These local-development defaults can be overridden with `MYSQL_DATABASE`,
+`MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, and `MYSQL_PORT`.
+
+## Docker lifecycle
+
+Inspect the database service:
+
+```bash
+docker compose -f lemon/compose.yaml ps
+docker compose -f lemon/compose.yaml logs --follow mysql
+```
+
+Stop the database while preserving its data:
+
+```bash
+docker compose -f lemon/compose.yaml stop
+```
+
+Remove the container while preserving its named data volume:
+
+```bash
+docker compose -f lemon/compose.yaml down
+```
+
+To delete the local database data as well, explicitly remove the volume:
+
+```bash
+docker compose -f lemon/compose.yaml down --volumes
+```
+
+## Management commands
+
+Activate Lemon's environment and enter the source directory:
+
+```bash
+source lemon/.venv/bin/activate
+cd lemon/src
+```
+
+Load or restore the sample catalog manually:
+
+```bash
+python manage.py loaddata \
+    api/fixtures/Category.json \
+    api/fixtures/Cuisine.json \
+    api/fixtures/Meal.json
+```
+
+The launcher runs this automatically only when the meal table is empty, so it
+does not overwrite an existing catalog.
+
+Run the tests:
 
 ```bash
 python manage.py test
 ```
 
-### How to start up Django project
+Create and apply migrations:
 
 ```bash
-python manage.py runserver
+python manage.py makemigrations api lemon
+python manage.py migrate
+python manage.py showmigrations
 ```
 
-### How to install and start up MySQL on macOS
-Install mysql using next command in terminal (*install brew before)
+Create an administrator account:
 
 ```bash
-brew install mysql
+python manage.py createsuperuser
 ```
 
-We've installed your MySQL database without a root password. To secure it run:
+Open the configured database shell:
+
 ```bash
-mysql_secure_installation
+python manage.py dbshell
 ```
 
-MySQL is configured to only allow connections from localhost by default
+Create another Django application:
 
-To connect run:
 ```bash
-mysql -u root
+python manage.py startapp APP_NAME
 ```
 
-To start mysql now and restart at login:
-```bash
-brew services start mysql
-```
-Or, if you don't want/need a background service you can just run:
-```bash
-/opt/homebrew/opt/mysql/bin/mysqld_safe --datadir\=/opt/homebrew/var/mysql
-```
+## Debug toolbar
 
-### How to install MySQL libraries
+The Django debug toolbar is installed and configured for local requests from
+`127.0.0.1`. When the server is running, open:
 
-```bash
-brew install pkg-config
-```
-
-Upgrade pip
-```bash
-pip3 install --upgrade pip
-```
-
-Upgrade setup tools
-```bash
-python3 -m pip install --upgrade setuptools
-```
-
-Install python connector
-```bash
-pip3 install mysql-connector-python
-```
-
-Install mysqlclient
-```bash
-pip3 install mysqlclient
-```
-
-### How to create a FID user in MySQL
-
-Connect to MySQL database and execute
-```bash
-CREATE USER 'mysql_fid'@'localhost' IDENTIFIED BY 'mysql_fid' ;
-```
-
-```bash
-GRANT ALL ON *.* TO 'mysql_fid'@'localhost';
-```
-
-```bash
-FLUSH PRIVILEGES;
+```text
+http://127.0.0.1:8000/__debug__/
 ```
