@@ -14,9 +14,8 @@ class TestNumber(unittest.TestCase):
         temp = Number()
         self.assertEqual(0, temp.get_value())
         temp.set_value("5.0")
-        self.assertEqual(5.0, 5.0)
-        pass
+        self.assertEqual(5.0, temp.get_value())
 
-    if __name__ == "__main__":
-        # import sys;sys.argv = ['', 'Test.testName']
-        unittest.main()
+
+if __name__ == "__main__":
+    unittest.main()
