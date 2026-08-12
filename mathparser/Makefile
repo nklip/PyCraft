@@ -8,7 +8,7 @@ ARGS ?=
 
 help:  ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
 install:  ## Install dependencies into .venv
 	uv sync

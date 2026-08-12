@@ -1,8 +1,19 @@
 # Chatbot
+<sub>[Back to PyCraft](../README.md#pycraft)</sub>
 
 Chatbot is a FastAPI application serving a WebSocket chat UI.
 
+## Contents
+1. [Project structure](#project-structure)
+2. [Requirements](#requirements)
+3. [Configuration](#configuration)
+4. [Start the application](#start-the-application)
+5. [Everyday commands](#everyday-commands)
+6. [Tests](#tests)
+7. [Code style](#code-style)
+
 ## Project structure
+<sub>[Back to top](#chatbot)</sub>
 
 ```text
 chatbot/
@@ -26,6 +37,7 @@ environment is created at `chatbot/.venv` and is isolated from the other PyCraft
 applications.
 
 ## Requirements
+<sub>[Back to top](#chatbot)</sub>
 
 - [uv](https://docs.astral.sh/uv/) — manages the Python version, the virtual
   environment, and dependencies
@@ -38,6 +50,7 @@ uv downloads Python 3.14 itself if the machine does not already have it, so no
 interpreter needs to be installed separately.
 
 ## Configuration
+<sub>[Back to top](#chatbot)</sub>
 
 Configuration lives in `chatbot/.env`, which `run.sh` creates from
 `.env.example` on first run. `src/settings.py` reads it through
@@ -52,6 +65,7 @@ overridden by a real environment variable.
 `.env` is git-ignored; `.env.example` is the committed template.
 
 ## Start the application
+<sub>[Back to top](#chatbot)</sub>
 
 Run this command from the top-level `PyCraft` directory:
 
@@ -77,6 +91,7 @@ Arguments are forwarded to Uvicorn. For example:
 ```
 
 ## Everyday commands
+<sub>[Back to top](#chatbot)</sub>
 
 Run these from the `chatbot` directory. `make` on its own lists them.
 
@@ -99,6 +114,7 @@ make run ARGS="--reload"
 ```
 
 ## Tests
+<sub>[Back to top](#chatbot)</sub>
 
 ```bash
 make test
@@ -109,6 +125,7 @@ The suite runs on pytest, configured under `[tool.pytest.ini_options]` in
 page and a WebSocket round trip through `process_message`.
 
 ## Code style
+<sub>[Back to top](#chatbot)</sub>
 
 `ruff` handles both linting and formatting, configured in `pyproject.toml`:
 

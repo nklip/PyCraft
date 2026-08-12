@@ -1,8 +1,18 @@
 # Mathparser
+<sub>[Back to PyCraft](../README.md#pycraft)</sub>
 
 Mathparser is an interactive top-down mathematical expression parser.
 
+## Contents
+1. [Project structure](#project-structure)
+2. [Requirements](#requirements)
+3. [Start the application](#start-the-application)
+4. [Everyday commands](#everyday-commands)
+5. [Tests](#tests)
+6. [Code style](#code-style)
+
 ## Project structure
+<sub>[Back to top](#mathparser)</sub>
 
 ```text
 mathparser/
@@ -21,6 +31,7 @@ created at `mathparser/.venv` and is isolated from the other PyCraft
 applications.
 
 ## Requirements
+<sub>[Back to top](#mathparser)</sub>
 
 - [uv](https://docs.astral.sh/uv/) — manages the Python version, the virtual
   environment, and dependencies
@@ -36,6 +47,7 @@ Mathparser uses only the Python standard library, so it has no runtime
 dependencies. The `.venv` exists to hold the development tools.
 
 ## Start the application
+<sub>[Back to top](#mathparser)</sub>
 
 Run this command from the top-level `PyCraft` directory:
 
@@ -54,6 +66,7 @@ Enter your expression: quit
 ```
 
 ## Everyday commands
+<sub>[Back to top](#mathparser)</sub>
 
 Run these from the `mathparser` directory. `make` on its own lists them.
 
@@ -75,6 +88,7 @@ make test ARGS="-k division -vv"
 ```
 
 ## Tests
+<sub>[Back to top](#mathparser)</sub>
 
 ```bash
 make test
@@ -85,6 +99,7 @@ The suite runs on pytest, configured under `[tool.pytest.ini_options]` in
 unchanged.
 
 ## Code style
+<sub>[Back to top](#mathparser)</sub>
 
 `ruff` handles both linting and formatting, configured in `pyproject.toml`:
 

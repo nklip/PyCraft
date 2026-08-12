@@ -1,4 +1,5 @@
-MANAGE := uv run python src/manage.py
+RUN := uv run
+MANAGE := $(RUN) python src/manage.py
 
 # Extra arguments for targets that forward them, e.g. `make test ARGS="-k cart"`.
 ARGS ?=
@@ -18,18 +19,18 @@ run:  ## Start the development server
 	$(MANAGE) runserver $(ARGS)
 
 test: db-up  ## Run the test suite
-	uv run pytest $(ARGS)
+	$(RUN) pytest $(ARGS)
 
 coverage: db-up  ## Run the test suite with a coverage report
-	uv run pytest --cov --cov-report=term $(ARGS)
+	$(RUN) pytest --cov --cov-report=term $(ARGS)
 
 lint:  ## Check formatting and lint rules
-	uv run ruff check .
-	uv run ruff format --check .
+	$(RUN) ruff check .
+	$(RUN) ruff format --check .
 
 format:  ## Apply formatting and safe lint fixes
-	uv run ruff format .
-	uv run ruff check --fix .
+	$(RUN) ruff format .
+	$(RUN) ruff check --fix .
 
 check: lint test  ## Everything CI would run
 

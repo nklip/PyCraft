@@ -1,8 +1,21 @@
 # Little Lemon Backend
+<sub>[Back to PyCraft](../README.md#pycraft)</sub>
 
 Little Lemon is a Django and Django REST Framework application backed by MySQL.
 
+## Contents
+1. [Project structure](#project-structure)
+2. [Requirements](#requirements)
+3. [Configuration](#configuration)
+4. [Start the application](#start-the-application)
+5. [Everyday commands](#everyday-commands)
+6. [Tests](#tests)
+7. [Code style](#code-style)
+8. [Docker lifecycle](#docker-lifecycle)
+9. [Debug toolbar](#debug-toolbar)
+
 ## Project structure
+<sub>[Back to top](#little-lemon-backend)</sub>
 
 ```text
 lemon/
@@ -28,6 +41,7 @@ Dependencies, tooling configuration, and test settings all live in
 isolated from the other PyCraft applications.
 
 ## Requirements
+<sub>[Back to top](#little-lemon-backend)</sub>
 
 - [uv](https://docs.astral.sh/uv/) — manages the Python version, the virtual
   environment, and dependencies
@@ -49,6 +63,7 @@ brew services stop mysql
 ```
 
 ## Configuration
+<sub>[Back to top](#little-lemon-backend)</sub>
 
 All configuration lives in a single `lemon/.env`, which `run.sh` creates from
 `.env.example` on first run. Docker Compose reads it for `${VAR}` interpolation
@@ -74,6 +89,7 @@ shared, `config.settings.local` is the default for `manage.py` and `run.sh`, and
 `config.settings.test` is selected automatically by pytest.
 
 ## Start the application
+<sub>[Back to top](#little-lemon-backend)</sub>
 
 Start Docker Desktop, then run this command from the top-level `PyCraft`
 directory:
@@ -101,6 +117,7 @@ Arguments are forwarded to Django's `runserver` command. For example:
 ```
 
 ## Everyday commands
+<sub>[Back to top](#little-lemon-backend)</sub>
 
 Run these from the `lemon` directory. `make` on its own lists them.
 
@@ -138,6 +155,7 @@ uv run python src/manage.py startapp APP_NAME
 ```
 
 ## Tests
+<sub>[Back to top](#little-lemon-backend)</sub>
 
 ```bash
 make test
@@ -165,6 +183,7 @@ whose counters live in the cache and would otherwise make results depend on
 execution order.
 
 ## Code style
+<sub>[Back to top](#little-lemon-backend)</sub>
 
 `ruff` handles both linting and formatting, configured in `pyproject.toml`:
 
@@ -174,6 +193,7 @@ make lint
 ```
 
 ## Docker lifecycle
+<sub>[Back to top](#little-lemon-backend)</sub>
 
 The `make db-*` targets above cover the common cases. The underlying commands,
 if you want them directly:
@@ -184,6 +204,7 @@ docker compose -f lemon/compose.yaml logs --follow mysql
 ```
 
 ## Debug toolbar
+<sub>[Back to top](#little-lemon-backend)</sub>
 
 `django-debug-toolbar` is a development-only dependency, installed and wired up
 only by the local settings. When the server is running, open:

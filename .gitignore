@@ -90,7 +90,9 @@ coverage.xml
 .ipynb_checkpoints
 
 # pyenv
-.python-version
+# Root-scoped on purpose: a per-project .python-version is uv's interpreter pin
+# and belongs in version control, so only a local pyenv pin here is ignored.
+/.python-version
 
 # celery
 celerybeat-schedule.*
