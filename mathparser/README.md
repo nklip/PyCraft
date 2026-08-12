@@ -23,7 +23,8 @@ mathparser/
 ├── Makefile
 ├── pyproject.toml
 ├── README.md
-└── run.sh
+├── run.sh
+└── uv.lock
 ```
 
 Tooling configuration lives in `pyproject.toml`. The virtual environment is

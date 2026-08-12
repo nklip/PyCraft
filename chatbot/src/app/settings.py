@@ -4,8 +4,12 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# chatbot/
-PROJECT_DIR = Path(__file__).resolve().parents[1]
+# chatbot/ -- up out of src/chatbot/
+PROJECT_DIR = Path(__file__).resolve().parents[2]
+
+# Where the browser fetches assets from. Fixed rather than injected per request,
+# so templates and JavaScript can reference assets without Python rendering them.
+STATIC_URL = "/chatbot/static"
 
 
 class Settings(BaseSettings):

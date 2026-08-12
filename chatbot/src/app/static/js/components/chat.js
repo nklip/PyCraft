@@ -70,7 +70,7 @@ $(".userInput").on("keyup keypress", (e) => {
 function setUserResponse(message) {
     const user_response =
         `<div aria-live="off" class="extra-info-user">${getCurrentFormattedDateTime()}</div>` +
-        `<img class="userAvatar" src='/${srcName}/img/userIcon.png' height="32" width="32"/>` +
+        `<img class="userAvatar" src='/chatbot/static/img/userIcon.png' height="32" width="32"/>` +
         `<p class="userMessage">${message}</p>` +
         `<div class="clearfix"></div>`;
     $(user_response).appendTo(".chats").show("slow");
@@ -96,7 +96,7 @@ function setBotResponse(response) {
 
             const botResponse =
                 `<div aria-live="off" class="extra-info">${getCurrentFormattedDateTime()}</div>` +
-                `<img class="botAvatar" src="/${srcName}/img/botIcon.png" height="32" width="32" />` +
+                `<img class="botAvatar" src="/chatbot/static/img/botIcon.png" height="32" width="32" />` +
                 `<p class="botMessage">${fallbackMessage}</p>` +
                 `<div class="clearfix"></div>`;
             $(botResponse).appendTo(".chats").hide().fadeIn(1000);
@@ -126,7 +126,7 @@ function setBotResponse(response) {
                             if (!botResponse) {
                                 botResponse =
                                     `<div aria-live="off" class="extra-info">${getCurrentFormattedDateTime()}</div>` +
-                                    `<img class="botAvatar" src="/${srcName}/img/botIcon.png" height="32" width="32" />` +
+                                    `<img class="botAvatar" src="/chatbot/static/img/botIcon.png" height="32" width="32" />` +
                                     `<p class="botMessage">${response[i].text}</p>` +
                                     `<div class="clearfix"></div>`;
                             }
@@ -169,7 +169,7 @@ function setBotResponse(response) {
 function getBotResponse(text) {
     const botResponse =
         `<div aria-live="off" class="extra-info">${getCurrentFormattedDateTime()}</div>` +
-        `<img class="botAvatar" src="/${srcName}/img/botIcon.png" height="32" width="32" />` +
+        `<img class="botAvatar" src="/chatbot/static/img/botIcon.png" height="32" width="32" />` +
         `<span class="botMessage">${text}</span>` +
         `<div class="clearfix"></div>`;
     return botResponse;
@@ -208,7 +208,7 @@ function hideBotTyping() {
  */
 function showBotTyping() {
     const botTyping =
-        `<img class="botAvatar" id="botAvatar" src="/${srcName}/img/botIcon.png" height="32" width="32"/>` +
+        `<img class="botAvatar" id="botAvatar" src="/chatbot/static/img/botIcon.png" height="32" width="32"/>` +
         `<div class="botTyping">` +
             `<div class="bounce1"></div>` +
             `<div class="bounce2"></div>` +

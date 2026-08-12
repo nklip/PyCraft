@@ -3,14 +3,19 @@
 
 Chatbot is a FastAPI application serving a WebSocket chat UI.
 
+There is no Django here. Django belongs to [lemon](../lemon/README.md);
+this project is FastAPI plus vanilla JavaScript, and a fourth project should
+not assume the repository is a Django repository.
+
 ## Contents
 1. [Project structure](#project-structure)
-2. [Requirements](#requirements)
-3. [Configuration](#configuration)
-4. [Start the application](#start-the-application)
-5. [Everyday commands](#everyday-commands)
-6. [Tests](#tests)
-7. [Code style](#code-style)
+2. [How the frontend loads](#how-the-frontend-loads)
+3. [Requirements](#requirements)
+4. [Configuration](#configuration)
+5. [Start the application](#start-the-application)
+6. [Everyday commands](#everyday-commands)
+7. [Tests](#tests)
+8. [Code style](#code-style)
 
 ## Project structure
 <sub>[Back to top](#chatbot)</sub>
@@ -18,23 +23,116 @@ Chatbot is a FastAPI application serving a WebSocket chat UI.
 ```text
 chatbot/
 ├── src/
-│   ├── static/
-│   ├── templates/
-│   ├── connection_manager.py
-│   ├── main.py
-│   ├── models.py
-│   └── settings.py
+│   └── app/
+│       ├── chat/
+│       │   ├── catalog.py
+│       │   ├── connections.py
+│       │   ├── intents.py
+│       │   ├── router.py
+│       │   └── schemas.py
+│       ├── static/
+│       │   ├── css/
+│       │   ├── img/
+│       │   ├── js/
+│       │   └── vendor/
+│       ├── templates/
+│       │   └── index.html
+│       ├── main.py
+│       ├── pages.py
+│       └── settings.py
 ├── tests/
-│   └── test_main.py
+│   └── test_app.py
 ├── .env.example
 ├── Makefile
 ├── pyproject.toml
-└── run.sh
+├── README.md
+├── run.sh
+└── uv.lock
 ```
+
+`static/vendor/` holds third-party libraries exactly as downloaded, so
+hand-written code is never mistaken for a vendored one.
+
+### How the Python is organised
+
+Modules are grouped **by feature, not by technical layer**. There is no `models/`
+next to `schemas/` next to `services/`; instead everything belonging to the chat
+lives in `chat/`, using the conventional FastAPI file names — `router.py` for
+endpoints, `schemas.py` for the Pydantic wire shapes, and the modules that make
+up the feature beside them. Incoming socket messages are validated against
+`schemas.Payload` before they reach `intents.handle`, so a malformed message
+gets an error reply and leaves the connection open rather than reaching the
+reply logic. A change to how the assistant replies stays inside
+one folder rather than touching four.
+
+The layer-first alternative is common in tutorials, and it is the one that ages
+badly: adding a feature means editing `api/`, `schemas/`, `services/`, and
+`models/` in parallel. Grouping by feature is also what Django does with apps,
+which is why [lemon](../lemon/README.md) is laid out as `api/` and `lemon/`.
+
+Two modules stay at the package root because they belong to no single feature:
+`main.py` builds the application, and `settings.py` holds configuration.
+`pages.py` is a single HTML route and does not need a folder of its own.
+
+### Why the package is `app`, not `chatbot`
+
+The Python package deliberately does not repeat the project name. `chatbot/src/`
+holds one package, so naming it `chatbot` too would give every path a doubled
+`chatbot/.../chatbot/...` — the layout `django-admin startproject` produces and
+the one people most often complain about, because no path tells you which of the
+two you are looking at. The entry point is `main.py` for the same reason:
+`app/app.py` would reintroduce the doubling one level down.
+
+The package still exists rather than putting modules loose in `src/`. Without
+it, `src/` goes on `sys.path` directly and `settings`, `pages`, and `chat`
+become importable top-level names — generic enough to collide with an installed
+package, and ambiguous to read (`from settings import settings`). `app.settings`
+says where it comes from.
+
+`src/` itself is kept for consistency with the sibling projects, where it earns
+its place: lemon's holds three Django apps side by side. Here it holds one
+package, and its only real job is keeping Python code separate from the
+project's `Makefile`, `pyproject.toml`, and `.env`.
 
 Dependencies and tooling configuration all live in `pyproject.toml`. The virtual
 environment is created at `chatbot/.venv` and is isolated from the other PyCraft
 applications.
+
+## How the frontend loads
+<sub>[Back to top](#chatbot)</sub>
+
+`templates/index.html` loads scripts in three ordered groups, all as ordinary
+`<script>` tags:
+
+1. **Vendored libraries** from `static/vendor/`, loaded synchronously.
+2. **An inline script that opens the WebSocket.** It runs before the component
+   scripts because `chat.js` assigns `ws.onmessage` at the top level, so `ws`
+   has to be a real object by then. Its values go through Jinja's `tojson`
+   filter, which quotes and escapes them correctly.
+3. **The application scripts, marked `defer`.** Deferred scripts run after the
+   document is parsed and in document order — which matters because `chat.js`
+   binds handlers to elements, `.userInput` among them, that appear further down
+   the page.
+
+None of this is dynamic, and that is deliberate. An earlier version injected the
+component scripts at runtime through a hand-written `include()` helper, which
+caused two problems worth not repeating:
+
+- **Browsers do not reliably revalidate dynamically inserted scripts** on a hard
+  reload, so a stale component could survive a cache clear. The symptom is
+  miserable to diagnose: the page renders correctly and nothing responds to
+  clicks, because the first script threw a `ReferenceError` before binding any
+  handler, and nothing else reports an error.
+- **Load order was decided by network timing.** Injected scripts ignore `defer`
+  and behave as `async`, so the ordering held only because the chained requests
+  happened to be slower than parsing the document.
+
+For the same reason the server sends `Cache-Control: no-cache` on **every**
+response, not only static files: the page and its scripts have to agree with
+each other, so a fresh page against a cached script breaks exactly as badly as
+the reverse. `no-cache` still permits caching — it only requires the ETag to be
+checked first, so unchanged files come back as a cheap `304`. A deployment that
+wants real caching should serve hashed filenames with a long `max-age` instead.
 
 ## Requirements
 <sub>[Back to top](#chatbot)</sub>
@@ -53,7 +151,7 @@ interpreter needs to be installed separately.
 <sub>[Back to top](#chatbot)</sub>
 
 Configuration lives in `chatbot/.env`, which `run.sh` creates from
-`.env.example` on first run. `src/settings.py` reads it through
+`.env.example` on first run. `src/app/settings.py` reads it through
 `pydantic-settings`, so every value is typed, has a default, and can be
 overridden by a real environment variable.
 
@@ -121,8 +219,8 @@ make test
 ```
 
 The suite runs on pytest, configured under `[tool.pytest.ini_options]` in
-`pyproject.toml`. `tests/test_main.py` covers the two entry points: the rendered
-page and a WebSocket round trip through `process_message`.
+`pyproject.toml`. `tests/test_app.py` covers the two entry points: the rendered
+page and a WebSocket round trip through `intents.handle`.
 
 ## Code style
 <sub>[Back to top](#chatbot)</sub>

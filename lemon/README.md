@@ -33,7 +33,9 @@ lemon/
 ├── compose.yaml
 ├── Makefile
 ├── pyproject.toml
-└── run.sh
+├── README.md
+├── run.sh
+└── uv.lock
 ```
 
 Dependencies, tooling configuration, and test settings all live in

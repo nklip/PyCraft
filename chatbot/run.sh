@@ -25,4 +25,4 @@ uv sync
 
 echo "Starting chatbot server..."
 printf 'Open Chatbot at \033[1mhttp://127.0.0.1:8000/chatbot\033[0m\n'
-exec uv run uvicorn --app-dir src main:server "$@"
+exec uv run uvicorn --app-dir src app.main:server "$@"

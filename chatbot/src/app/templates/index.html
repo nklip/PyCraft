@@ -3,53 +3,60 @@
 
 <head>
     <title>Chatbot</title>
-    <link rel="icon" href="/{{src}}/img/chat.png">
+    <link rel="icon" href="/chatbot/static/img/chat.png">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
     <meta content="utf-8" http-equiv="encoding" />
 
     <!-- Import materialize.css -->
-    <link rel="stylesheet" type="text/css" href="/{{src}}/css/materialize.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/chatbot/static/vendor/materialize.min.css"/>
 
     <!-- Import CSS styles for components -->
-    <link rel="stylesheet" type="text/css" href="/{{src}}/css/buttons.css"/>
-    <link rel="stylesheet" type="text/css" href="/{{src}}/css/table.css"/>
-    <link rel="stylesheet" type="text/css" href="/{{src}}/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="/chatbot/static/css/buttons.css"/>
+    <link rel="stylesheet" type="text/css" href="/chatbot/static/css/table.css"/>
+    <link rel="stylesheet" type="text/css" href="/chatbot/static/css/style.css"/>
 </head>
 
 <body>
     <script>
-        var srcName = "{{src}}";
         var userName = "inikki";
     </script>
 
-    <script type="text/javascript" src="/{{src}}/js/jquery.min.js"></script>
-    <script type="text/javascript" src="/{{src}}/js/jquery-ui.js"></script>
-    <script type="text/javascript" src="/{{src}}/js/lib/materialize.min.js"></script>
-    <script type="text/javascript" src="/{{src}}/js/lib/showdown.min.js"></script>
-    <script type="text/javascript" src="/{{src}}/js/index.js"></script>
+    <script type="text/javascript" src="/chatbot/static/vendor/jquery.min.js"></script>
+    <script type="text/javascript" src="/chatbot/static/vendor/jquery-ui.js"></script>
+    <script type="text/javascript" src="/chatbot/static/vendor/materialize.min.js"></script>
+    <script type="text/javascript" src="/chatbot/static/vendor/showdown.min.js"></script>
 
+    <!--
+      The socket is opened here, before the components load: chat.js assigns
+      ws.onmessage at the top level, so ws has to be a real object by then.
+      tojson quotes and escapes the values, which is what the old
+      .replaceAll("&#34;", "") was working around.
+    -->
     <script type="text/javascript">
-        let ws;
-        document.addEventListener("DOMContentLoaded", function() {
-            var client_id = "{{soeid}}";
-            var ws_url = "{{ws_host}}".replaceAll("&#34;", "");
-            var url = `${ws_url}/communicate?client_id=${client_id}`;
-            if (!ws || ws.readyState === WebSocket.CLOSED) {
-                ws = new WebSocket(url);
-                ws.onopen = function() {
-                    console.log("Web socket connect established.");
-                }
-                ws.onclose = function() {
-                    console.log("Web socket connect closed.");
-                }
-                ws.onerror = function() {
-                    console.log("Web socket connection error.", error)
-                }
-            }
-        });
+        const WS_HOST = {{ ws_host | tojson }};
+        const CLIENT_ID = {{ soeid | tojson }};
+
+        let ws = new WebSocket(`${WS_HOST}/communicate?client_id=${CLIENT_ID}`);
+        ws.onopen = () => console.log("Web socket connect established.");
+        ws.onclose = () => console.log("Web socket connect closed.");
+        ws.onerror = (event) => console.log("Web socket connection error.", event);
     </script>
+
+    <!--
+      Ordinary deferred script tags, in dependency order. defer runs them after
+      the document is parsed, so handlers bound at top level (chat.js binds
+      .userInput) find their elements. These were previously injected
+      at runtime by a hand-rolled include(); browsers do not revalidate
+      dynamically inserted scripts on a hard reload, so a stale component could
+      survive a cache clear and break the page with no visible error.
+    -->
+    <script type="text/javascript" defer src="/chatbot/static/js/components/buttons.js"></script>
+    <script type="text/javascript" defer src="/chatbot/static/js/components/chat.js"></script>
+    <script type="text/javascript" defer src="/chatbot/static/js/components/table.js"></script>
+    <script type="text/javascript" defer src="/chatbot/static/js/components/report-bug.js"></script>
+    <script type="text/javascript" defer src="/chatbot/static/js/index.js"></script>
 
     <div class="container">
         <div class="widget">
@@ -64,7 +71,7 @@
             </div>
             <div class="chatbox-header-logo">
                 <a href="#">
-                    <img src="/{{src}}/img/chatbot-logo.png" title="Kafka" alt="Kafka">
+                    <img src="/chatbot/static/img/chatbot-logo.png" title="Kafka" alt="Kafka">
                 </a>
                 <span class="salutation" id="salutation"></span>
             </div>

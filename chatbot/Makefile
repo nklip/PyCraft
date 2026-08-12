@@ -14,7 +14,7 @@ install:  ## Install dependencies into .venv
 	uv sync
 
 run:  ## Start the development server
-	$(RUN) uvicorn --app-dir src main:server $(ARGS)
+	$(RUN) uvicorn --app-dir src app.main:server $(ARGS)
 
 test:  ## Run the test suite
 	$(RUN) pytest $(ARGS)

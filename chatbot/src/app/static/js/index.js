@@ -1,17 +1,3 @@
-// define function to import js file
-function include(file) {
-    const script = document.createElement('script');
-
-    script.src = file;
-    script.type = 'text/javascript';
-    script.defer = true;
-
-    document.getElementsByTagName('head').item(0).appendChild(script);
-}
-
-// import components
-include(`/${srcName}/js/components/all-components.js`)
-
 document.addEventListener('DOMContentLoaded', () => {
     localStorage.clear();
     console.log("Local Storage has been cleared.");

@@ -65,4 +65,4 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["connection_manager", "models", "settings"]
+known-first-party = ["app"]

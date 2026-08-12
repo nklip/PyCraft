@@ -1,6 +1,12 @@
 from fastapi import WebSocket, WebSocketDisconnect
 
-from models import WebSocketConnectionModel
+
+class WebSocketConnectionModel:
+    """One live browser connection. Lives here because nothing else uses it."""
+
+    client_id: str
+    socket: WebSocket
+
 
 # Initial global context
 
