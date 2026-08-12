@@ -1,11 +1,12 @@
-from pydantic import BaseModel
-from typing import Dict
 from fastapi import WebSocket
+from pydantic import BaseModel
+
 
 class Payload(BaseModel):
     type: str
     intent: str
-    context: Dict
+    context: dict
+
 
 class WebSocketConnectionModel:
     client_id: str

@@ -1,26 +1,16 @@
 from fastapi import WebSocket, WebSocketDisconnect
+
 from models import WebSocketConnectionModel
-from typing import List, Dict
 
 # Initial global context
 
-gc = {
-    "config" : {
-        "acronyms" : {
-            "counter" : 0
-        },
-        "session" : {
-            "utterance" : "",
-            "intent" : ""
-        }
-    }
-}
+gc = {"config": {"acronyms": {"counter": 0}, "session": {"utterance": "", "intent": ""}}}
+
 
 class ConnectionManager:
-
     def __init__(self):
-        self.activate_connections: List[WebSocketConnectionModel] = []
-        self.global_context: Dict[str, Dict[str]] = {}
+        self.activate_connections: list[WebSocketConnectionModel] = []
+        self.global_context: dict[str, dict[str]] = {}
 
     async def connect(self, websocket: WebSocket, client_id: str):
         try:

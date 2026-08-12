@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     "rest_framework",
     # Provides the token model behind TokenAuthentication
     "rest_framework.authtoken",
-    "django_filters",
     # djoser generates the auth endpoints and must follow rest_framework
     "djoser",
 ]
