@@ -1,30 +1,69 @@
 # Chatbot
 
+## Project structure
 
-### How to set up Virtual Environment [MacOS]
-
-Create /venv folder before executing it
-
-```bash
-python -m venv venv
+```text
+chatbot/
+├── profile/
+├── requirements.txt
+├── run.sh
+└── src/
+    ├── connection_manager.py
+    ├── main.py
+    ├── models.py
+    ├── static/
+    └── templates/
 ```
 
-### How to activate Virtual Environment [MacOS]
+The Python virtual environment is created at `chatbot/.venv` and is isolated
+from the other PyCraft applications.
 
-Create /venv folder before executing it
+## Requirements
+
+- Python 3.14
+
+## Start the application
+
+Run this command from the top-level `PyCraft` directory:
 
 ```bash
-source venv/bin/activate
+./chatbot/run.sh
 ```
 
-### How to install all dependencies
+The launcher:
+
+1. Creates `chatbot/.venv` with Python 3.14 if it does not exist.
+2. Activates the virtual environment.
+3. Installs the pinned dependencies from `chatbot/requirements.txt`.
+4. Loads variables from `chatbot/profile/chatbot.local.profile`.
+5. Starts the Uvicorn development server.
+
+Arguments are forwarded to Uvicorn. For example:
 
 ```bash
-pip install -r requirements.txt
+./chatbot/run.sh --reload
 ```
 
-### How to start up project
+## Manual commands
+
+Activate Chatbot's environment:
 
 ```bash
-uvicorn main:server
+source chatbot/.venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+python -m pip install -r chatbot/requirements.txt
+```
+
+Start the server manually:
+
+```bash
+set -a
+source chatbot/profile/chatbot.local.profile
+set +a
+cd chatbot/src
+python -m uvicorn main:server
 ```

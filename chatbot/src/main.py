@@ -116,7 +116,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         connection.socket = websocket
         manager.disconnect(connection)
 
-        if web_ex.code == 1000:
+        if web_ex.code in (1000, 1001):
             print("Session finished.")
         else:
             print(f"Error in Session: {web_ex}")
