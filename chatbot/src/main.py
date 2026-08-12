@@ -11,9 +11,31 @@ from settings import settings
 
 BASE_DIR = Path(__file__).resolve().parent
 
+STATIC_PATH = "/chatbot/static"
+
 server = FastAPI()
 server.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-server.mount("/chatbot/static", StaticFiles(directory=str(Path(BASE_DIR, "static"))), name="static")
+server.mount(STATIC_PATH, StaticFiles(directory=str(Path(BASE_DIR, "static"))), name="static")
+
+
+@server.middleware("http")
+async def revalidate_static_assets(request: Request, call_next):
+    """
+    Force browsers to revalidate static files.
+
+    StaticFiles sends ETag and Last-Modified but no Cache-Control, so browsers
+    fall back to heuristic freshness and can serve a stylesheet from cache for
+    hours after it changed -- restarting the server does not help, because the
+    browser never asks. "no-cache" still permits caching; it only requires the
+    ETag to be checked first, so unchanged files still come back as a cheap 304.
+
+    A deployment that wants real caching should serve hashed filenames with a
+    long max-age instead.
+    """
+    response = await call_next(request)
+    if request.url.path.startswith(STATIC_PATH):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
 
 templates = Jinja2Templates(directory=str(Path(BASE_DIR, "templates")))
 

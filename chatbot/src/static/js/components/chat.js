@@ -35,8 +35,9 @@ $(".reload-btn").click(() => {
 $(".userInput").on("keyup keypress", (e) => {
     const keyCode = e.keyCode || e.which;
 
-    const text = $(".userInput").text();
-    if (keyCode === 13) {
+    const text = $(".userInput").val();
+    // Shift+Enter inserts a newline; plain Enter sends.
+    if (keyCode === 13 && !e.shiftKey) {
         if (text === "" || $.trim(text) === "") {
             e.preventDefault();
             return false;
@@ -74,7 +75,7 @@ function setUserResponse(message) {
         `<div class="clearfix"></div>`;
     $(user_response).appendTo(".chats").show("slow");
 
-    $(".userInput").text("");
+    $(".userInput").val("");
     scrollToBottomOfResults();
     showBotTyping();
 }

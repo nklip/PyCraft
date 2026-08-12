@@ -10,4 +10,5 @@ function include(file) {
 
 include(`/${srcName}/js/components/buttons.js`)
 include(`/${srcName}/js/components/chat.js`)
+include(`/${srcName}/js/components/report-bug.js`)
 include(`/${srcName}/js/components/table.js`)

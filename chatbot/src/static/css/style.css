@@ -1,3 +1,19 @@
+/*
+ * Palette. Every colour in the widget comes from here; before these existed the
+ * stylesheet carried six unrelated hardcoded blues.
+ */
+:root {
+    --chat-surface: #00bdf2;
+    --chat-surface-dark: #002d71;
+    --chat-accent: #3292ff;
+    --chat-accent-soft: #5b9bd5;
+    --chat-user-text: #00a9e8;
+    --chat-on-surface: #ffffff;
+
+    /* Keeps the transcript's top padding in step with the header logo. */
+    --chat-logo-height: 200px;
+}
+
 .botAvatar {
     border-radius: 25%;
     width: 2.5em;
@@ -14,13 +30,11 @@
     color: black;
     margin-left: 0.5em;
     padding: 10px;
-    border-radius: 1.5em;
-    max-width: 90%;
-    min-width: 90%;
-    font-size: 15px;
-    width: 100%;
-    word-wrap: "break-word";
     border-radius: 5px 20px 20px 20px;
+    max-width: 90%;
+    min-width: 15%;
+    font-size: 15px;
+    overflow-wrap: break-word;
 }
 
 .botTyping {
@@ -86,7 +100,7 @@
     margin: 0;
     max-height: 75%;
     width: 100%;
-    padding: 255px 20px 20px 20px;
+    padding: calc(var(--chat-logo-height) + 55px) 20px 20px 20px;
     border-radius: 1px;
     overflow-y: auto;
     margin-top: 1px;
@@ -150,6 +164,12 @@ div.chats>span:botMsg>ol {
     display: block;
 }
 
+.chatbox-controls button:focus-visible {
+    outline: 2px solid white;
+    outline-offset: -2px;
+    border-radius: 4px;
+}
+
 .chatbox-controls button.reload-btn i {
     background-position: -125px -63px;
     background-image: url("../img/refresh.png");
@@ -197,6 +217,11 @@ div.chats>span:botMsg>ol {
     margin: 0px auto;
 }
 
+/* Single source for the height the transcript's top padding has to clear. */
+.chatbox-header-logo img {
+    height: var(--chat-logo-height);
+}
+
 .close-btn .icon {
     font-size: 15px;
     cursor: pointer;
@@ -204,10 +229,8 @@ div.chats>span:botMsg>ol {
 
 .chat-button {
     display: block;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
     border-radius: 35%;
-    border: 2px solid #5B9BD5;
+    border: 2px solid var(--chat-accent-soft);
     padding: 6px;
     width: 60px;
     height: 60px;
@@ -253,7 +276,7 @@ div.chats>span:botMsg>ol {
 .message .tooltiptext {
     visibility: hidden;
     width: 180px;
-    background-color: #5B9BD5;
+    background-color: var(--chat-accent-soft);
     color: white;
     text-align: center;
     border-radius: 6px;
@@ -279,23 +302,38 @@ div.chats>span:botMsg>ol {
     width: 100%;
 }
 
-.quick-links>a {
-    width: 25px;
-    height: 25px;
-    border-radius: 00%;
-    background-size: 25px auto !important;
-    float: left;
-    margin: 0 5px;
+.quick-links {
+    display: flex;
+    gap: 6px;
 }
 
-.quick-links .feedback-img {
-    background: url("../img/feedback.png") center center no-repeat;
-    filter: invert(100%);
+/*
+ * Inline SVG rather than a black PNG flipped with filter: invert(100%), so the
+ * icons follow currentColor and survive a change of panel colour.
+ */
+.quick-links .quick-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--chat-on-surface);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
 }
 
-.quick-links .email-img {
-    background: url("../img/email.png") center center no-repeat;
-    filter: invert(100%);
+.quick-links .quick-link:hover {
+    background-color: rgba(255, 255, 255, 0.22);
+}
+
+.quick-links .quick-link:focus-visible {
+    outline: 2px solid var(--chat-on-surface);
+    outline-offset: 2px;
 }
 
 .singleCard,
@@ -304,21 +342,38 @@ div.chats>span:botMsg>ol {
     padding-right: 10px;
 }
 
+/*
+ * Scrolls the transcript back to the top. It is deliberately not styled as a
+ * solid button and not placed beside the input: at the bottom-right of the
+ * footer it reads as "send", which this control is not.
+ */
 .scroll-to-top {
-    bottom: 3px;
-    right: 25px;
-    height: 40px;
-    width: 40px;
+    position: absolute;
+    right: 20px;
+    bottom: 96px;
+    height: 34px;
+    width: 34px;
+    padding: 0;
 
-    border: none;
-    background-color: white;
+    border: 1px solid rgba(255, 255, 255, 0.55);
     border-radius: 50%;
-    color: blue;
+    background-color: rgba(255, 255, 255, 0.18);
+    color: white;
     cursor: pointer;
     display: none;
     font-size: 14px;
-    position:absolute;
+    line-height: 1;
     z-index: 10;
+    transition: background-color 0.15s ease;
+}
+
+.scroll-to-top:hover {
+    background-color: rgba(255, 255, 255, 0.32);
+}
+
+.scroll-to-top:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
 }
 
 .widget {
@@ -332,7 +387,7 @@ div.chats>span:botMsg>ol {
     max-height: 90%;
     bottom: 5%;
     position: fixed;
-    background: rgb(0, 189, 242);
+    background: var(--chat-surface);
     border-radius: 10px 10px 10px 10px;
 }
 
@@ -363,24 +418,29 @@ div.chats>span:botMsg>ol {
 
 .widget .core-chat-footer .chatInputBox {
     width: 100%;
-    padding: 6px;
+    padding: 8px;
     outline: none;
     display: block;
     font-size: 16px;
-    cursor: text;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+    height: 40px;
     max-height: 70px;
     overflow-x: hidden;
     overflow-y: auto;
     font-family: "Lato", sans-serif;
+    border: none;
     border-radius: 4px;
     background: #fff;
+    resize: none;
 }
 
-.widget [contenteditable=true]:empty:before {
-    content: attr(placeholder);
-    display: block;
+.widget .core-chat-footer .chatInputBox::placeholder {
     color: #D0D0D0;
+}
+
+.widget .core-chat-footer .chatInputBox:focus-visible {
+    outline: 2px solid var(--chat-on-surface);
+    outline-offset: 1px;
 }
 
 #ui-widget {
@@ -398,7 +458,7 @@ div.chats>span:botMsg>ol {
     float: right;
     margin-right: 0.5em;
     background: white;
-    color: #00a9e8;
+    color: var(--chat-user-text);
     margin-bottom: 0.15em;
     font-size: 15px;
     max-width: 65%;
@@ -416,4 +476,67 @@ div.chats>span:botMsg>ol {
     float: right;
     margin-left: 5px;
     background-color: white;
+}
+/*
+ * Small screens. The widget is otherwise a fixed 630x630 panel, which does not
+ * fit a phone even though the page carries a viewport meta tag.
+ */
+@media (max-width: 480px) {
+    :root {
+        --chat-logo-height: 120px;
+    }
+
+    .widget {
+        width: auto;
+        max-width: none;
+        min-width: 0;
+        height: auto;
+        max-height: none;
+        top: 8px;
+        right: 8px;
+        bottom: 8px;
+        left: 8px;
+        border-radius: 12px;
+    }
+
+    .widget.expanded {
+        width: auto !important;
+        min-width: 0;
+        min-height: 0;
+        bottom: 8px !important;
+        top: 8px !important;
+    }
+
+    .chats {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .botMessage {
+        max-width: 85%;
+    }
+
+    .userMessage {
+        max-width: 80%;
+    }
+
+    .chatbox-header-title {
+        padding-left: 10px;
+    }
+}
+
+/* Brief confirmation shown after "Report a bug" opens a mail draft. */
+.report-notice {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 96px;
+    padding: 8px 12px;
+    z-index: 20;
+
+    border-radius: 6px;
+    background-color: rgba(0, 45, 113, 0.92);
+    color: var(--chat-on-surface);
+    font-size: 13px;
+    text-align: center;
 }

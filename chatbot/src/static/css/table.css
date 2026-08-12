@@ -25,7 +25,7 @@
 }
 
 .exp-table .tr.custom-row:hower td {
-    background: #002d71;
+    background: var(--chat-surface-dark);
     color: white !important;
 }
 

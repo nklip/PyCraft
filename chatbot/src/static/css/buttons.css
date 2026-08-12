@@ -10,7 +10,7 @@
 
 .menuChips {
     display: block;
-    background: #002d71;
+    background: var(--chat-surface-dark);
     color: white;
     text-align: center;
     padding: 5px;
@@ -23,7 +23,7 @@
 
 .widget .action-button>li {
     position: relative;
-    background: #002d71;
+    background: var(--chat-surface-dark);
     color: white;
     margin-top: 7px !important;
     border: 0;
@@ -43,7 +43,7 @@
 
 .widget .action-button-inner>li {
     position: relative;
-    background: #002d71;
+    background: var(--chat-surface-dark);
     color: white;
     margin-top: 7px !important;
     border: 0;
@@ -60,7 +60,7 @@
 }
 
 .widget .buttonTmplContentChild {
-    color: #3292ff;
+    color: var(--chat-accent);
     border-top: 1px solid #f2f2f2;
     padding: 7px;
     margin: 0 !important;
