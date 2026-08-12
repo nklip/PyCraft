@@ -1,0 +1,89 @@
+[project]
+name = "lemon"
+version = "0.1.0"
+description = "Little Lemon restaurant backend built with Django and Django REST Framework."
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.1",
+    "django-environ>=0.12",
+    "django-filter>=26.1",
+    "djangorestframework>=3.18",
+    "djoser>=2.3.4",
+    "markdown>=3.10.3",
+    "mysqlclient>=2.2.8",
+]
+
+[dependency-groups]
+test = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "pytest-cov>=6.0",
+]
+dev = [
+    { include-group = "test" },
+    "django-debug-toolbar>=7.1",
+    "ruff>=0.9",
+]
+
+[tool.uv]
+# Lemon is a deployable application, not an installable distribution, so uv
+# manages its dependencies without building the project itself.
+package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+pythonpath = ["src"]
+testpaths = ["src"]
+# Django's own convention puts app tests in tests.py, which pytest would
+# otherwise skip.
+python_files = ["test_*.py", "tests.py"]
+addopts = "-ra --strict-markers --strict-config"
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/tests.py",
+    "src/manage.py",
+    "*/asgi.py",
+    "*/wsgi.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "DJ",   # flake8-django
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    # The formatter already enforces line length; what it leaves behind are
+    # comments and URLs it cannot legally break.
+    "E501",
+    # En dashes and typographic quotes in prose comments are intentional.
+    "RUF003",
+    # Django and DRF declare class-level lists (fields, permission_classes,
+    # throttle_classes) by design.
+    "RUF012",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Settings modules layer overrides on top of a star import by design.
+"src/config/settings/*.py" = ["F405"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["api", "config", "lemon"]

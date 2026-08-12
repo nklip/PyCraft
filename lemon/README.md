@@ -6,33 +6,40 @@ Little Lemon is a Django and Django REST Framework application backed by MySQL.
 
 ```text
 lemon/
+├── src/
+│   ├── api/
+│   ├── config/
+│   │   ├── settings/
+│   │   │   ├── base.py
+│   │   │   ├── local.py
+│   │   │   └── test.py
+│   │   └── urls.py
+│   ├── lemon/
+│   └── manage.py
+├── .env.example
 ├── compose.yaml
-├── docker/
-│   └── mysql/
-│       └── init-test-permissions.sh
-├── requirements.txt
-├── run.sh
-└── src/
-    ├── manage.py
-    ├── api/
-    ├── config/
-    └── lemon/
+├── Makefile
+├── pyproject.toml
+└── run.sh
 ```
 
-The Python virtual environment is created at `lemon/.venv` and is isolated
-from the other PyCraft applications.
+Dependencies, tooling configuration, and test settings all live in
+`pyproject.toml`. The virtual environment is created at `lemon/.venv` and is
+isolated from the other PyCraft applications.
 
 ## Requirements
 
-- Python 3.14
+- [uv](https://docs.astral.sh/uv/) — manages the Python version, the virtual
+  environment, and dependencies
 - Docker Desktop with Docker Compose
 - Homebrew MySQL client libraries and `pkg-config` for building `mysqlclient`
 
-Install the native build dependencies on macOS:
-
 ```bash
-brew install mysql pkg-config
+brew install uv mysql pkg-config
 ```
+
+uv downloads Python 3.14 itself if the machine does not already have it, so no
+interpreter needs to be installed separately.
 
 The Homebrew MySQL service does not need to run because MySQL runs in Docker.
 If another MySQL server already occupies port 3306, stop it before launching:
@@ -40,6 +47,31 @@ If another MySQL server already occupies port 3306, stop it before launching:
 ```bash
 brew services stop mysql
 ```
+
+## Configuration
+
+All configuration lives in a single `lemon/.env`, which `run.sh` creates from
+`.env.example` on first run. Docker Compose reads it for `${VAR}` interpolation
+in `compose.yaml`, and Django reads it through `django-environ`, so each value
+is defined exactly once.
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `DJANGO_SECRET_KEY` | insecure development key | Must be set to a real secret anywhere but a laptop |
+| `DJANGO_DEBUG` | `True` | Enables the debug toolbar and detailed error pages |
+| `DJANGO_ALLOWED_HOSTS` | `127.0.0.1,localhost` | Comma-separated host allowlist |
+| `MYSQL_DATABASE` | `lemon` | Application database |
+| `MYSQL_USER` | `mysql_fid` | Application database user |
+| `MYSQL_PASSWORD` | `mysql_fid` | Application database password |
+| `MYSQL_ROOT_PASSWORD` | `root` | Container superuser, also used by the test suite |
+| `MYSQL_HOST` | `127.0.0.1` | Database host as seen from the application |
+| `MYSQL_PORT` | `3306` | Published container port |
+
+`.env` is git-ignored; `.env.example` is the committed template.
+
+Settings are split by environment. `config.settings.base` holds everything
+shared, `config.settings.local` is the default for `manage.py` and `run.sh`, and
+`config.settings.test` is selected automatically by pytest.
 
 ## Start the application
 
@@ -52,13 +84,15 @@ directory:
 
 The launcher:
 
-1. Creates `lemon/.venv` with Python 3.14 if it does not exist.
-2. Activates the virtual environment.
-3. Installs the pinned Python dependencies.
+1. Verifies that uv and Docker are available.
+2. Creates `.env` from `.env.example` if it is missing.
+3. Syncs `lemon/.venv` against `pyproject.toml`.
 4. Starts the MySQL 8.4 LTS container and waits for it to become healthy.
 5. Applies Django database migrations.
 6. Loads sample categories, cuisines, and meals when the meal table is empty.
 7. Starts the Django development server.
+
+It deliberately does not run the tests; `make test` does that.
 
 Arguments are forwarded to Django's `runserver` command. For example:
 
@@ -66,100 +100,93 @@ Arguments are forwarded to Django's `runserver` command. For example:
 ./lemon/run.sh 0.0.0.0:8000
 ```
 
-The default local database configuration is:
+## Everyday commands
 
-- Database: `lemon`
-- User: `mysql_fid`
-- Password: `mysql_fid`
-- Host: `127.0.0.1:3306`
+Run these from the `lemon` directory. `make` on its own lists them.
 
-These local-development defaults can be overridden with `MYSQL_DATABASE`,
-`MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, and `MYSQL_PORT`.
+| Target | What it does |
+| --- | --- |
+| `make install` | Sync dependencies into `.venv` |
+| `make run` | Start the development server |
+| `make test` | Start MySQL if needed, then run the suite |
+| `make coverage` | Run the suite with a coverage report |
+| `make lint` | Check formatting and lint rules |
+| `make format` | Apply formatting and safe lint fixes |
+| `make check` | `lint` plus `test` — everything CI would run |
+| `make migrate` | Apply migrations |
+| `make makemigrations` | Generate migrations for the `api` and `lemon` apps |
+| `make superuser` | Create an administrator account |
+| `make shell` | Open the Django shell |
+| `make fixtures` | Load the sample catalog, overwriting existing rows |
+| `make db-up` / `db-stop` | Start / stop MySQL, keeping its data |
+| `make db-down` | Remove the container, keeping its data volume |
+| `make db-reset` | Remove the container and delete its data volume |
+| `make clean` | Delete caches and build artefacts |
+
+Targets that take extra arguments accept them through `ARGS`:
+
+```bash
+make test ARGS="-k cart -vv"
+make run ARGS="0.0.0.0:8000"
+```
+
+Anything without a target is one `uv run` away:
+
+```bash
+uv run python src/manage.py dbshell
+uv run python src/manage.py startapp APP_NAME
+```
+
+## Tests
+
+```bash
+make test
+```
+
+The suite runs on pytest through `pytest-django`; existing `django.test.TestCase`
+classes work unchanged. Configuration lives under `[tool.pytest.ini_options]` in
+`pyproject.toml`.
+
+`--reuse-db` skips the create-and-migrate step when the schema has not changed:
+
+```bash
+make test ARGS="--reuse-db"
+```
+
+Test settings connect as the MySQL superuser rather than as `mysql_fid`. The
+test runner creates and drops `test_lemon`, which the application user is not
+granted, and granting it would mean provisioning database privileges purely to
+support a test harness. Local and CI databases are disposable, so the simpler
+arrangement is to let tests use the superuser and leave the application user
+scoped to the application database.
+
+Test settings also swap in a fast password hasher and disable DRF throttling,
+whose counters live in the cache and would otherwise make results depend on
+execution order.
+
+## Code style
+
+`ruff` handles both linting and formatting, configured in `pyproject.toml`:
+
+```bash
+make format
+make lint
+```
 
 ## Docker lifecycle
 
-Inspect the database service:
+The `make db-*` targets above cover the common cases. The underlying commands,
+if you want them directly:
 
 ```bash
 docker compose -f lemon/compose.yaml ps
 docker compose -f lemon/compose.yaml logs --follow mysql
 ```
 
-Stop the database while preserving its data:
-
-```bash
-docker compose -f lemon/compose.yaml stop
-```
-
-Remove the container while preserving its named data volume:
-
-```bash
-docker compose -f lemon/compose.yaml down
-```
-
-To delete the local database data as well, explicitly remove the volume:
-
-```bash
-docker compose -f lemon/compose.yaml down --volumes
-```
-
-## Management commands
-
-Activate Lemon's environment and enter the source directory:
-
-```bash
-source lemon/.venv/bin/activate
-cd lemon/src
-```
-
-Load or restore the sample catalog manually:
-
-```bash
-python manage.py loaddata \
-    api/fixtures/Category.json \
-    api/fixtures/Cuisine.json \
-    api/fixtures/Meal.json
-```
-
-The launcher runs this automatically only when the meal table is empty, so it
-does not overwrite an existing catalog.
-
-Run the tests:
-
-```bash
-python manage.py test
-```
-
-Create and apply migrations:
-
-```bash
-python manage.py makemigrations api lemon
-python manage.py migrate
-python manage.py showmigrations
-```
-
-Create an administrator account:
-
-```bash
-python manage.py createsuperuser
-```
-
-Open the configured database shell:
-
-```bash
-python manage.py dbshell
-```
-
-Create another Django application:
-
-```bash
-python manage.py startapp APP_NAME
-```
-
 ## Debug toolbar
 
-The Django debug toolbar is installed and configured for local requests from
-`127.0.0.1`. When the server is running, open:
+`django-debug-toolbar` is a development-only dependency, installed and wired up
+only by the local settings. When the server is running, open:
 
 ```text
 http://127.0.0.1:8000/__debug__/

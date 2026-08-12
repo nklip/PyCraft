@@ -1,29 +1,23 @@
-
 # api/user_groups.py in lemon app
-import json
 
-from django.contrib.auth.models import User, Group
-from django.core.exceptions import PermissionDenied
-from django.db import IntegrityError
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound
-from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseForbidden
 from django.utils import timezone
-
-from rest_framework import status, serializers, generics
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import generics, status
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from rest_framework.views import APIView
 
 from ..models import Cart, Order, OrderItem
 from ..serializers import OrderSerializer
 
+
 def access_denied():
     return HttpResponseForbidden("Access denied. You are not a manager")
 
-#-------------------------
+
+# -------------------------
 # API:
 #
 # /api/orders           - Customer      - GET   - Returns all orders with order items created by this user
@@ -37,26 +31,30 @@ def access_denied():
 # /api/orders/{orderId} - Manager       - DELETE - Deletes this order
 # /api/orders           - Delivery crew - GET    - Returns all orders with order items assigned to the delivery crew
 # /api/orders/{orderId} - Delivery crew - PATCH  - A delivery crew can use this endpoint to update the order status to 0 or 1. The delivery crew will not be able to update anything else in this order.
-#-------------------------
+# -------------------------
+
 
 @permission_classes([IsAuthenticated])
 class OrdersView(generics.CreateAPIView, generics.ListAPIView):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     # limit HTTP methods
-    http_method_names = ['get', 'post']
+    http_method_names = ["get", "post"]
     queryset = Order.objects.get_queryset()
     serializer_class = OrderSerializer
-    authentication_classes = [TokenAuthentication, SessionAuthentication,]
+    authentication_classes = [
+        TokenAuthentication,
+        SessionAuthentication,
+    ]
 
     # override for get & post
     def get_queryset(self):
         user = self.request.user
-        if (self.request.user.groups.filter(name='Manager')).exists():
-            return Order.objects.all().order_by('id')
-        elif (self.request.user.groups.filter(name='DeliveryCrew').exists()):
-            return Order.objects.all().filter(delivery=user).order_by('id')
+        if (self.request.user.groups.filter(name="Manager")).exists():
+            return Order.objects.all().order_by("id")
+        elif self.request.user.groups.filter(name="DeliveryCrew").exists():
+            return Order.objects.all().filter(delivery=user).order_by("id")
         else:
-            return Order.objects.all().filter(customer=user).order_by('id')
+            return Order.objects.all().filter(customer=user).order_by("id")
 
     def post(self, request, *args, **kwargs):
         # get user id
@@ -81,11 +79,11 @@ class OrdersView(generics.CreateAPIView, generics.ListAPIView):
         # create order items from cart items
         for cart_item in cart_items:
             order_item = OrderItem(
-                order = order,
-                meal = cart_item.meal,
-                count = cart_item.count,
-                unit_price = cart_item.unit_price,
-                price =cart_item.price
+                order=order,
+                meal=cart_item.meal,
+                count=cart_item.count,
+                unit_price=cart_item.unit_price,
+                price=cart_item.price,
             )
             order_item.save()
 
@@ -95,37 +93,41 @@ class OrdersView(generics.CreateAPIView, generics.ListAPIView):
 
         return Response("Your order has been created.", status=status.HTTP_201_CREATED)
 
+
 @permission_classes([IsAuthenticated])
 class OrderView(generics.RetrieveUpdateAPIView, generics.DestroyAPIView):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     # limit HTTP methods
-    http_method_names = ['get', 'put', 'patch', 'delete']
+    http_method_names = ["get", "put", "patch", "delete"]
     queryset = Order.objects.values()
     serializer_class = OrderSerializer
-    authentication_classes = [TokenAuthentication, SessionAuthentication,]
+    authentication_classes = [
+        TokenAuthentication,
+        SessionAuthentication,
+    ]
 
     def update(self, request, *args, **kwargs):
-        if (request.user.groups.filter(name='DeliveryCrew')).exists():
+        if (request.user.groups.filter(name="DeliveryCrew")).exists():
             # get order
-            order = Order.objects.all().filter(pk=kwargs.get('pk'))
+            order = Order.objects.all().filter(pk=kwargs.get("pk"))
             # delivery crew can only update status to delivered (1)
-            st = request.data.get('status')
-            if st == 'true' or st == 'True' or st == 1:
-                order.update(status='True')
+            st = request.data.get("status")
+            if st == "true" or st == "True" or st == 1:
+                order.update(status="True")
 
             return Response("Order has been updated.", status=status.HTTP_200_OK)
-        elif (request.user.groups.filter(name='Manager')).exists():
+        elif (request.user.groups.filter(name="Manager")).exists():
             # get order
-            order = Order.objects.all().filter(pk=kwargs.get('pk'))
+            order = Order.objects.all().filter(pk=kwargs.get("pk"))
             # update delivery
-            delivery = request.data.get('delivery_id')
+            delivery = request.data.get("delivery_id")
             if delivery:
                 order.update(delivery=delivery)
 
             # Manager can only update status to assigned(0) or delivered (1)
-            st = request.data.get('status')
-            if st == 'true' or st == 'True' or st == 1:
-                order.update(status='True')
+            st = request.data.get("status")
+            if st == "true" or st == "True" or st == 1:
+                order.update(status="True")
 
             return Response("Order has been updated.", status=status.HTTP_200_OK)
         else:
@@ -139,22 +141,26 @@ class OrderView(generics.RetrieveUpdateAPIView, generics.DestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         # get order
-        order = Order.objects.all().filter(pk=kwargs.get('pk')).first()
+        order = Order.objects.all().filter(pk=kwargs.get("pk")).first()
         # check if delivery guy is assigned
         delivery = 0
         if order.delivery:
             if order.delivery.pk:
                 delivery = order.delivery.pk
         # check if order belongs the the user and if user is not a manager or not a delivery guy who has been assigned with this order
-        if order.customer.pk != request.user.id and not delivery == request.user.id and not request.user.groups.filter(name='Manager').exists():
+        if (
+            order.customer.pk != request.user.id
+            and not delivery == request.user.id
+            and not request.user.groups.filter(name="Manager").exists()
+        ):
             return Response("Access denied.", status=status.HTTP_403_FORBIDDEN)
         serializer = self.get_serializer(order)
         return Response(serializer.data)
 
     def delete(self, request, *args, **kwargs):
-        if (request.user.groups.filter(name='Manager')).exists():
+        if (request.user.groups.filter(name="Manager")).exists():
             # get order
-            order = Order.objects.all().filter(pk=kwargs.get('pk'))
+            order = Order.objects.all().filter(pk=kwargs.get("pk"))
             # get all order items for this order
             order_items = OrderItem.objects.all().filter(order=order.first())
             # delete all order items

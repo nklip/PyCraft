@@ -6,12 +6,12 @@ Mathparser is an interactive top-down mathematical expression parser.
 
 ```text
 mathparser/
-├── README.md
-├── run.sh
 ├── src/
-│   ├── main.py
-│   └── calculator/
-└── tests/
+│   ├── calculator/
+│   └── main.py
+├── tests/
+├── README.md
+└── run.sh
 ```
 
 The Python virtual environment is created at `mathparser/.venv` and is

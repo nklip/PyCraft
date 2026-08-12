@@ -5,14 +5,14 @@
 ```text
 chatbot/
 ├── profile/
+├── src/
+│   ├── static/
+│   ├── templates/
+│   ├── connection_manager.py
+│   ├── main.py
+│   └── models.py
 ├── requirements.txt
-├── run.sh
-└── src/
-    ├── connection_manager.py
-    ├── main.py
-    ├── models.py
-    ├── static/
-    └── templates/
+└── run.sh
 ```
 
 The Python virtual environment is created at `chatbot/.venv` and is isolated

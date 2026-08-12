@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -16,82 +15,181 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Booking',
+            name="Booking",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(max_length=50)),
-                ('last_name', models.CharField(max_length=50)),
-                ('guest_count', models.PositiveIntegerField(default=2, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(10)])),
-                ('reservation_date', models.DateField()),
-                ('reservation_time', models.CharField(choices=[('1 PM', '1 PM'), ('2 PM', '2 PM'), ('3 PM', '3 PM'), ('4 PM', '4 PM'), ('5 PM', '5 PM'), ('6 PM', '6 PM'), ('7 PM', '7 PM'), ('8 PM', '8 PM'), ('9 PM', '9 PM')], max_length=10)),
-                ('comments', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=50)),
+                ("last_name", models.CharField(max_length=50)),
+                (
+                    "guest_count",
+                    models.PositiveIntegerField(
+                        default=2,
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(10),
+                        ],
+                    ),
+                ),
+                ("reservation_date", models.DateField()),
+                (
+                    "reservation_time",
+                    models.CharField(
+                        choices=[
+                            ("1 PM", "1 PM"),
+                            ("2 PM", "2 PM"),
+                            ("3 PM", "3 PM"),
+                            ("4 PM", "4 PM"),
+                            ("5 PM", "5 PM"),
+                            ("6 PM", "6 PM"),
+                            ("7 PM", "7 PM"),
+                            ("8 PM", "8 PM"),
+                            ("9 PM", "9 PM"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("comments", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('slug', models.SlugField()),
-                ('title', models.CharField(db_index=True, max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("slug", models.SlugField()),
+                ("title", models.CharField(db_index=True, max_length=255)),
             ],
         ),
         migrations.CreateModel(
-            name='Cuisine',
+            name="Cuisine",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Meal',
+            name="Meal",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(db_index=True, max_length=100)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=5)),
-                ('desc', models.TextField(default='', max_length=1000)),
-                ('image', models.CharField(default='', max_length=200)),
-                ('image_text', models.CharField(default='', max_length=200)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='api.category')),
-                ('cuisine', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='api.cuisine')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(db_index=True, max_length=100)),
+                ("price", models.DecimalField(decimal_places=2, max_digits=5)),
+                ("desc", models.TextField(default="", max_length=1000)),
+                ("image", models.CharField(default="", max_length=200)),
+                ("image_text", models.CharField(default="", max_length=200)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="api.category"
+                    ),
+                ),
+                (
+                    "cuisine",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="api.cuisine"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Order',
+            name="Order",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.BooleanField(db_index=True, default=0, null=True)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=6)),
-                ('date', models.DateField(db_index=True)),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='customer', to=settings.AUTH_USER_MODEL)),
-                ('delivery', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='delivery', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("status", models.BooleanField(db_index=True, default=0, null=True)),
+                ("price", models.DecimalField(decimal_places=2, max_digits=6)),
+                ("date", models.DateField(db_index=True)),
+                (
+                    "customer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="customer",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "delivery",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="delivery",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Cart',
+            name="Cart",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('count', models.IntegerField()),
-                ('unit_price', models.DecimalField(decimal_places=2, max_digits=6)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=6)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
-                ('meal', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='api.meal')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("count", models.IntegerField()),
+                ("unit_price", models.DecimalField(decimal_places=2, max_digits=6)),
+                ("price", models.DecimalField(decimal_places=2, max_digits=6)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
+                (
+                    "meal",
+                    models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to="api.meal"),
+                ),
             ],
             options={
-                'unique_together': {('user', 'meal')},
+                "unique_together": {("user", "meal")},
             },
         ),
         migrations.CreateModel(
-            name='OrderItem',
+            name="OrderItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('count', models.IntegerField()),
-                ('unit_price', models.DecimalField(decimal_places=2, max_digits=6)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=6)),
-                ('meal', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='api.meal')),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='api.order')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("count", models.IntegerField()),
+                ("unit_price", models.DecimalField(decimal_places=2, max_digits=6)),
+                ("price", models.DecimalField(decimal_places=2, max_digits=6)),
+                (
+                    "meal",
+                    models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to="api.meal"),
+                ),
+                (
+                    "order",
+                    models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to="api.order"),
+                ),
             ],
             options={
-                'unique_together': {('order', 'meal')},
+                "unique_together": {("order", "meal")},
             },
         ),
     ]

@@ -1,7 +1,13 @@
 from django.contrib import admin
 
 from .models import (
-    Booking, Cart, Category, Cuisine, Meal, Order, OrderItem,
+    Booking,
+    Cart,
+    Category,
+    Cuisine,
+    Meal,
+    Order,
+    OrderItem,
 )
 
 # Register your models here.
