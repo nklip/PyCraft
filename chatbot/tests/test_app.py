@@ -102,3 +102,18 @@ def test_a_reconnect_starts_a_fresh_session(client):
 def _session_of(reply: str) -> str:
     """Pull the session id out of the claude placeholder."""
     return reply.split("session `")[1].split("`")[0]
+
+
+def test_a_crashing_mode_tells_the_client_instead_of_going_quiet(client, monkeypatch):
+    """A bug in a mode must not read as a frozen chat."""
+
+    async def boom(argument):
+        raise RuntimeError("mode is broken")
+
+    monkeypatch.setattr("app.chat.modes.echo.reply", boom)
+
+    with client.websocket_connect("/communicate?client_id=same-user") as socket:
+        socket.send_json({"type": "user", "text": "echo: Test"})
+        reply = socket.receive_json()
+
+    assert "went wrong" in reply["message"]["text"]

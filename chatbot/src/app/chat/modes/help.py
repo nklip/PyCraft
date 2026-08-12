@@ -1,14 +1,13 @@
 """Help mode: explains the chat's own functionality."""
 
 from app.chat import messages
-from app.chat.conversations import Conversation
 
 NAME = "help"
 SUMMARY = "Explain what I can do."
 USAGE = "help"
 
 
-async def reply(argument: str, conversation: Conversation) -> dict:
+async def reply(argument: str) -> dict:
     # Imported here rather than at module level: the registry imports this
     # module, so importing it back at the top would be a circular import.
     from app.chat.modes import MODES, SEPARATOR

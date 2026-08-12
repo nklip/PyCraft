@@ -1,6 +1,7 @@
 """Each mode, exercised without a socket."""
 
 import asyncio
+import inspect
 
 import pytest
 
@@ -133,9 +134,27 @@ def test_other_modes_do_not_touch_the_history():
 
     dispatch("echo: Test", conversation)
     dispatch("help", conversation)
+    dispatch("help: echo", conversation)
     dispatch("type: table", conversation)
+    dispatch("type: text", conversation)
+    dispatch("do a backflip", conversation)
 
     assert conversation.turns == 0
+
+
+def test_only_claude_is_given_the_history():
+    """The rule is structural: other modes never receive the conversation."""
+    opted_in = {name for name, mode in modes.MODES.items() if modes.needs_history(mode)}
+
+    assert opted_in == {"claude"}
+
+
+def test_modes_without_history_cannot_accept_a_conversation():
+    """Their signature takes the argument alone, so they cannot record a turn."""
+    for name, mode in modes.MODES.items():
+        parameters = inspect.signature(mode.reply).parameters
+        expected = 2 if modes.needs_history(mode) else 1
+        assert len(parameters) == expected, f"{name} has an unexpected reply() signature"
 
 
 def test_conversations_are_isolated_from_each_other():

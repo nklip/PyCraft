@@ -25,6 +25,12 @@ prose, so the result maps straight onto `messages.table`.
 from app.chat import conversations, messages
 from app.chat.conversations import Conversation
 
+# Opting in is what gets this mode the conversation at all. Dispatch hands the
+# history only to modes that declare they need it, so no other mode is even in a
+# position to write to it: the session holds the exchange with the model and
+# nothing else.
+NEEDS_HISTORY = True
+
 NAME = "claude"
 SUMMARY = "Ask Claude. Not wired up yet."
 USAGE = "claude: Why is the sky blue?"

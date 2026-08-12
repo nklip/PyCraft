@@ -44,7 +44,14 @@ async def communicate(websocket: WebSocket, client_id: str):
         else:
             print(f"Error in session {session_id}: {web_ex}")
     except Exception as ex:
-        print(f"An error has occured on session {session_id}: {ex}")
+        # Say something before going quiet. Swallowing this leaves the browser
+        # waiting on a reply that will never arrive, which reads as a frozen
+        # chat rather than an error -- and hides the bug that caused it.
+        print(f"An error has occured on session {session_id}: {ex!r}")
+        try:
+            await say(messages.text("Something went wrong on my side. Please try again."))
+        except Exception:
+            pass  # The socket is already gone; nothing left to tell.
     finally:
         # Always, so a conversation cannot outlive the tab that owns it.
         manager.disconnect(session_id)

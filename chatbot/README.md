@@ -127,11 +127,19 @@ step with the map of live connections. Surviving a reload would need one.
 Replies route by **session id, not `client_id`**: with a tab per session, "send
 to this user" is ambiguous as soon as a second tab is open.
 
+The history holds **the exchange with the model and nothing else**. Talking to
+`help`, `echo`, or `type` mid-conversation leaves it untouched, so those replies
+never end up in a request or get paid for as input tokens.
+
+That is enforced by what each mode is handed, not by trusting it to behave: a
+mode receives the conversation only if it sets `NEEDS_HISTORY`, and the rest are
+called with the argument alone. `claude` is the only one that opts in, so no
+other mode is in a position to record a turn even by mistake.
+
 The history is kept in the shape the Messages API expects, so a turn can be sent
-without translating it first. `claude` mode already records both sides of every
-turn — that is what will be sent once the integration lands, and recording it now
-means the session behaviour is real and tested before a network call exists. The
-other modes leave the history alone.
+without translating it first. `claude` already records both sides of every turn —
+that is what will be sent once the integration lands, and recording it now means
+the session behaviour is real and tested before a network call exists.
 
 Two limits worth stating plainly. History lives in the process, so **`uvicorn
 --workers 2` breaks it**: a second worker has its own memory and knows nothing of
