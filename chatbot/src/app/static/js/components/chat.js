@@ -250,30 +250,15 @@ ws.onmessage = function(event) {
 
 /**
  * Sends the user message to the server.
+ *
+ * The raw text goes as-is: the server decides which mode handles it. Mapping
+ * text to a mode here would mean the browser could silently drop anything it
+ * did not recognise, which is exactly what this used to do.
+ *
  * @param {String} message - user message
  */
 async function send(message) {
-    let response = [];
     await new Promise((r) => setTimeout(r, 2000));
 
-    payload = ""
-    console.log("Message = " + message);
-    message = message.toLowerCase();
-    if (message == 'help') {
-        payload = {
-            "type": "user",
-            "intent" : message
-        }
-    } else if (message == 'table') {
-        payload = {
-            "type": "user",
-            "intent" : message
-        }
-    }
-
-    if (typeof payload === 'string') {
-        console.log("Message action not found for " + message);
-    } else {
-        sendMessage(payload);
-    }
+    sendMessage({ type: "user", text: message });
 }

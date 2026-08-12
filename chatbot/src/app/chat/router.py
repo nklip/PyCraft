@@ -3,7 +3,7 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
-from app.chat import intents
+from app.chat import messages, modes
 from app.chat.connections import ConnectionManager, WebSocketConnectionModel
 from app.chat.schemas import Payload
 
@@ -28,15 +28,17 @@ async def communicate(websocket: WebSocket, client_id: str):
                 # drop the connection -- tell the user and keep listening.
                 print(f"Rejected malformed payload from '{client_id}': {error}")
                 await manager.send_personal_message(
-                    intents.text_reply("Sorry, I could not read that message."),
+                    manager.create_json_response(
+                        {"message": messages.text("Sorry, I could not read that message.")},
+                        "bot",
+                    ),
                     client_id,
                 )
                 continue
 
-            reply = intents.handle(payload, client_id)
-            bot_response = manager.create_json_response(reply, "bot")
-            print(f"Bot response message: '{bot_response}' for user = '{client_id}'")
-            await manager.send_personal_message(bot_response, client_id)
+            print(f"Message from '{client_id}': {payload.text!r}")
+            reply = manager.create_json_response({"message": modes.dispatch(payload.text)}, "bot")
+            await manager.send_personal_message(reply, client_id)
     except WebSocketDisconnect as web_ex:
         connection = WebSocketConnectionModel()
         connection.client_id = client_id

@@ -9,13 +9,14 @@ not assume the repository is a Django repository.
 
 ## Contents
 1. [Project structure](#project-structure)
-2. [How the frontend loads](#how-the-frontend-loads)
-3. [Requirements](#requirements)
-4. [Configuration](#configuration)
-5. [Start the application](#start-the-application)
-6. [Everyday commands](#everyday-commands)
-7. [Tests](#tests)
-8. [Code style](#code-style)
+2. [Modes](#modes)
+3. [How the frontend loads](#how-the-frontend-loads)
+4. [Requirements](#requirements)
+5. [Configuration](#configuration)
+6. [Start the application](#start-the-application)
+7. [Everyday commands](#everyday-commands)
+8. [Tests](#tests)
+9. [Code style](#code-style)
 
 ## Project structure
 <sub>[Back to top](#chatbot)</sub>
@@ -25,9 +26,14 @@ chatbot/
 ├── src/
 │   └── app/
 │       ├── chat/
+│       │   ├── modes/
+│       │   │   ├── claude.py
+│       │   │   ├── echo.py
+│       │   │   ├── help.py
+│       │   │   └── types.py
 │       │   ├── catalog.py
 │       │   ├── connections.py
-│       │   ├── intents.py
+│       │   ├── messages.py
 │       │   ├── router.py
 │       │   └── schemas.py
 │       ├── static/
@@ -41,7 +47,8 @@ chatbot/
 │       ├── pages.py
 │       └── settings.py
 ├── tests/
-│   └── test_app.py
+│   ├── test_app.py
+│   └── test_modes.py
 ├── .env.example
 ├── Makefile
 ├── pyproject.toml
@@ -60,9 +67,8 @@ next to `schemas/` next to `services/`; instead everything belonging to the chat
 lives in `chat/`, using the conventional FastAPI file names — `router.py` for
 endpoints, `schemas.py` for the Pydantic wire shapes, and the modules that make
 up the feature beside them. Incoming socket messages are validated against
-`schemas.Payload` before they reach `intents.handle`, so a malformed message
-gets an error reply and leaves the connection open rather than reaching the
-reply logic. A change to how the assistant replies stays inside
+`schemas.Payload` before they reach a mode, so a malformed message gets an error
+reply and leaves the connection open rather than reaching the reply logic. A change to how the assistant replies stays inside
 one folder rather than touching four.
 
 The layer-first alternative is common in tutorials, and it is the one that ages
@@ -97,6 +103,41 @@ project's `Makefile`, `pyproject.toml`, and `.env`.
 Dependencies and tooling configuration all live in `pyproject.toml`. The virtual
 environment is created at `chatbot/.venv` and is isolated from the other PyCraft
 applications.
+
+## Modes
+<sub>[Back to top](#chatbot)</sub>
+
+The chat works in modes. A message is a mode name, then `:`, then whatever the
+mode needs — `echo: Test`. A mode that needs no argument is written on its own,
+like `help`. Mode names are case-insensitive, and only the first `:` splits, so
+an argument may contain more.
+
+| Mode | Example | What it does |
+| --- | --- | --- |
+| `help` | `help`, `help: echo` | Lists the modes, or explains one of them |
+| `echo` | `echo: Test` | Replies `Hello from backend! Did you say 'Test'?` |
+| `type` | `type: table` | Renders a content type, to show how the chat displays it |
+| `claude` | `claude: Why is the sky blue?` | Scaffolding only — see below |
+
+Anything that names no known mode gets a reply listing what is available.
+
+Each mode is a module in `chat/modes/` exposing `NAME`, `SUMMARY`, `USAGE`, and
+a `reply()` that turns the argument into a message. Adding one is a new module
+plus a single entry in the `MODES` registry: `help` lists whatever is
+registered, so it cannot fall out of date with the code.
+
+Replies are built through `chat/messages.py`, which holds the render contract
+the JavaScript understands. A mode never assembles that shape by hand, so
+changing how a table is delivered is a change in one file.
+
+**Claude mode is scaffolding, not an integration.** It is reachable, tested, and
+listed by help, but makes no model call — `chat/modes/claude.py` documents what
+wiring it up involves, in order. No API dependency is installed.
+
+**The browser does not choose the mode.** It sends the raw text and the server
+routes it. Until this change the JavaScript mapped text to one of two intents
+and silently discarded everything else, which put a limit on what the chat could
+answer inside the client.
 
 ## How the frontend loads
 <sub>[Back to top](#chatbot)</sub>
@@ -219,8 +260,11 @@ make test
 ```
 
 The suite runs on pytest, configured under `[tool.pytest.ini_options]` in
-`pyproject.toml`. `tests/test_app.py` covers the two entry points: the rendered
-page and a WebSocket round trip through `intents.handle`.
+`pyproject.toml`. `tests/test_app.py` covers the entry points — the rendered
+page, socket round trips, and a malformed payload getting an error reply without
+dropping the connection. `tests/test_modes.py` covers each mode directly, with
+no socket involved, which is the point of keeping the reply logic out of the
+router.
 
 ## Code style
 <sub>[Back to top](#chatbot)</sub>

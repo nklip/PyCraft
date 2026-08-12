@@ -26,6 +26,7 @@ function addButtons(buttons) {
                         <li class="buttonTmplContentChild"
                             value="Table"
                             actual-value="Table"
+                            data-command="type: table"
                             type="postback">Table</li>
                     </ul>
                 </a>
@@ -68,8 +69,9 @@ function addEvent() {
         let type = $(this).attr("type");
         let msgText = $(this).text();
         if (type == "postback") {
-            setUserResponse(msgText);
-            send(msgText);
+            const command = $(this).attr("data-command") || msgText;
+            setUserResponse(command);
+            send(command);
         }
     });
 }
