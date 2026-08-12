@@ -2,6 +2,7 @@
 
 from app.chat import messages
 from app.chat.catalog import ORGANISATIONS
+from app.chat.conversations import Conversation
 
 NAME = "type"
 SUMMARY = "Render a content type, to see how the chat displays it."
@@ -23,7 +24,7 @@ RENDERERS = {
 }
 
 
-def reply(argument: str) -> dict:
+async def reply(argument: str, conversation: Conversation) -> dict:
     wanted = argument.lower()
     renderer = RENDERERS.get(wanted)
 

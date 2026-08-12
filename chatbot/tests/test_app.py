@@ -58,3 +58,47 @@ def test_malformed_message_gets_an_error_and_keeps_the_connection(client):
         recovered = socket.receive_json()
 
     assert recovered["message"]["text"] == "Hello from backend! Did you say 'Test'?"
+
+
+def test_each_connection_is_its_own_session(client):
+    """A tab is a session: two tabs never share history, and a reload starts over."""
+
+    def ask_twice(socket):
+        replies = []
+        for text in ("claude: first", "claude: second"):
+            socket.send_json({"type": "user", "text": text})
+            replies.append(socket.receive_json()["message"]["text"])
+        return replies
+
+    with client.websocket_connect("/communicate?client_id=same-user") as first:
+        first_replies = ask_twice(first)
+        with client.websocket_connect("/communicate?client_id=same-user") as second:
+            second_replies = ask_twice(second)
+
+    # Same client_id, two connections: the histories must not have merged.
+    assert "2 turns recorded" in first_replies[0]
+    assert "2 turns recorded" in second_replies[0]
+    assert "4 turns recorded" in first_replies[1]
+    assert "4 turns recorded" in second_replies[1]
+
+    # And the sessions are distinct.
+    assert _session_of(first_replies[0]) != _session_of(second_replies[0])
+
+
+def test_a_reconnect_starts_a_fresh_session(client):
+    with client.websocket_connect("/communicate?client_id=same-user") as socket:
+        socket.send_json({"type": "user", "text": "claude: remember this"})
+        before = socket.receive_json()["message"]["text"]
+
+    # Closing the socket is a tab closing: the history goes with it.
+    with client.websocket_connect("/communicate?client_id=same-user") as socket:
+        socket.send_json({"type": "user", "text": "claude: anything there?"})
+        after = socket.receive_json()["message"]["text"]
+
+    assert "2 turns recorded" in after, "history survived a reconnect"
+    assert _session_of(before) != _session_of(after)
+
+
+def _session_of(reply: str) -> str:
+    """Pull the session id out of the claude placeholder."""
+    return reply.split("session `")[1].split("`")[0]

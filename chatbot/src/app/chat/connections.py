@@ -1,66 +1,68 @@
-from fastapi import WebSocket, WebSocketDisconnect
+"""The live WebSocket connections, one per open tab."""
+
+from dataclasses import dataclass
+
+from fastapi import WebSocket
+
+from app.chat.conversations import Conversation
 
 
-class WebSocketConnectionModel:
-    """One live browser connection. Lives here because nothing else uses it."""
+@dataclass
+class Connection:
+    """
+    One live browser connection and the conversation it owns.
+
+    `client_id` says who the user is and can repeat across tabs; the session id
+    on the conversation is what identifies *this* tab. Routing keys on the
+    session, because "send to client_id" is ambiguous the moment a second tab is
+    open -- which is the normal case here, since every tab is its own chat.
+    """
 
     client_id: str
     socket: WebSocket
+    conversation: Conversation
 
-
-# Initial global context
-
-gc = {"config": {"acronyms": {"counter": 0}, "session": {"utterance": "", "intent": ""}}}
+    @property
+    def session_id(self) -> str:
+        return self.conversation.session_id
 
 
 class ConnectionManager:
     def __init__(self):
-        self.activate_connections: list[WebSocketConnectionModel] = []
-        self.global_context: dict[str, dict[str]] = {}
+        self.active_connections: dict[str, Connection] = {}
 
-    async def connect(self, websocket: WebSocket, client_id: str):
-        try:
-            await websocket.accept()
-            connection = WebSocketConnectionModel()
-            connection.client_id = client_id
-            connection.socket = websocket
+    async def connect(self, websocket: WebSocket, client_id: str) -> Connection:
+        """Accept the socket and start a conversation for it."""
+        await websocket.accept()
 
-            self.activate_connections.append(connection)
+        connection = Connection(client_id=client_id, socket=websocket, conversation=Conversation())
+        self.active_connections[connection.session_id] = connection
 
-            print("Connection has been established!")
+        print(f"Connected: client '{client_id}', session {connection.session_id}")
+        return connection
 
-            if client_id in self.global_context:
-                del self.global_context[client_id]
+    def disconnect(self, session_id: str) -> None:
+        """Forget the connection and, with it, the conversation history."""
+        connection = self.active_connections.pop(session_id, None)
+        if connection is None:
+            return
+        print(f"Disconnected: client '{connection.client_id}', session {session_id}")
 
-            self.global_context[client_id] = gc
-            print(f"Global context has been initialized for {client_id}")
+    async def send_personal_message(self, message: dict, session_id: str) -> None:
+        """
+        Send to one session.
 
-        except WebSocketDisconnect as e:
-            print(f"An exception has occured while trying to connect: {e}")
+        A session that is not connected is not an error: the tab can close while
+        a reply is being prepared, and there is nothing left to deliver to.
+        """
+        connection = self.active_connections.get(session_id)
+        if connection is None:
+            print(f"Dropped a reply for session {session_id}: no longer connected")
+            return
 
-    async def send_personal_message(self, message: str, client_id: str):
-        for connection in self.activate_connections:
-            if connection.client_id == client_id:
-                client_socket = connection.socket
-        await client_socket.send_json(message)
+        await connection.socket.send_json(message)
 
-    def disconnect(self, connection: WebSocketConnectionModel):
-        try:
-            client_id = connection.client_id
-            for index_id, conn in enumerate(self.activate_connections):
-                if conn.client_id == client_id:
-                    self.activate_connections.pop(index_id)
-                    print(f"Connection has been successfully closed for user: {client_id}")
-        except Exception as e:
-            print(f"An exception has occured while trying to close WebSocket connction: {e}")
-
-    def create_json_response(self, data, response_type):
-        if response_type == "user":
-            data["type"] = "user"
-        elif response_type == "bot":
-            data["type"] = "bot"
+    def create_json_response(self, data: dict, response_type: str) -> dict:
+        if response_type in ("user", "bot"):
+            data["type"] = response_type
         return data
-
-    def update_global_context(self, client_id, key, value):
-        self.global_context[client_id][key] = value
-        print("Global context has been updated.")

@@ -22,18 +22,28 @@ A table should come from a tool call with a schema rather than from parsing
 prose, so the result maps straight onto `messages.table`.
 """
 
-from app.chat import messages
+from app.chat import conversations, messages
+from app.chat.conversations import Conversation
 
 NAME = "claude"
 SUMMARY = "Ask Claude. Not wired up yet."
 USAGE = "claude: Why is the sky blue?"
 
 
-def reply(argument: str) -> dict:
+PLACEHOLDER = "Claude mode is not wired up yet, so I cannot answer that."
+
+
+async def reply(argument: str, conversation: Conversation) -> dict:
     if not argument:
         return messages.text(f"Ask something, like `{USAGE}`.")
 
+    # The turn is recorded even though nothing is sent: this is the history that
+    # will go up with the request, so building it now means the session
+    # behaviour is real and testable before a network call exists.
+    conversation.record(conversations.USER, argument)
+    conversation.record(conversations.ASSISTANT, PLACEHOLDER)
+
     return messages.text(
-        "Claude mode is not wired up yet, so I cannot answer that. "
-        "The scaffolding is in place -- see `chat/modes/claude.py`."
+        f"{PLACEHOLDER} This tab is session `{conversation.short_id}` and has "
+        f"{conversation.turns} turns recorded -- that history is what will be sent."
     )

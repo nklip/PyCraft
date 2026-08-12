@@ -9,14 +9,15 @@ not assume the repository is a Django repository.
 
 ## Contents
 1. [Project structure](#project-structure)
-2. [Modes](#modes)
-3. [How the frontend loads](#how-the-frontend-loads)
-4. [Requirements](#requirements)
-5. [Configuration](#configuration)
-6. [Start the application](#start-the-application)
-7. [Everyday commands](#everyday-commands)
-8. [Tests](#tests)
-9. [Code style](#code-style)
+2. [Sessions](#sessions)
+3. [Modes](#modes)
+4. [How the frontend loads](#how-the-frontend-loads)
+5. [Requirements](#requirements)
+6. [Configuration](#configuration)
+7. [Start the application](#start-the-application)
+8. [Everyday commands](#everyday-commands)
+9. [Tests](#tests)
+10. [Code style](#code-style)
 
 ## Project structure
 <sub>[Back to top](#chatbot)</sub>
@@ -33,6 +34,7 @@ chatbot/
 │       │   │   └── types.py
 │       │   ├── catalog.py
 │       │   ├── connections.py
+│       │   ├── conversations.py
 │       │   ├── messages.py
 │       │   ├── router.py
 │       │   └── schemas.py
@@ -103,6 +105,38 @@ project's `Makefile`, `pyproject.toml`, and `.env`.
 Dependencies and tooling configuration all live in `pyproject.toml`. The virtual
 environment is created at `chatbot/.venv` and is isolated from the other PyCraft
 applications.
+
+## Sessions
+<sub>[Back to top](#chatbot)</sub>
+
+**One browser tab is one session.** Opening a tab starts a conversation with a
+fresh UUID; closing or refreshing it ends the conversation and the history goes
+with it. Two tabs are two independent chats even for the same user, and nothing
+is persisted.
+
+`client_id` and the session id answer different questions. `client_id` says who
+the user is and repeats across their tabs; the session id identifies *this* tab
+and is minted server-side, so the browser cannot pick it or reach another tab's
+history by guessing.
+
+That lifetime is why `conversations.py` has no registry. The conversation is
+created by the socket handler and referenced only by it, so it is collected when
+the handler returns — there is no map of live conversations that can drift out of
+step with the map of live connections. Surviving a reload would need one.
+
+Replies route by **session id, not `client_id`**: with a tab per session, "send
+to this user" is ambiguous as soon as a second tab is open.
+
+The history is kept in the shape the Messages API expects, so a turn can be sent
+without translating it first. `claude` mode already records both sides of every
+turn — that is what will be sent once the integration lands, and recording it now
+means the session behaviour is real and tested before a network call exists. The
+other modes leave the history alone.
+
+Two limits worth stating plainly. History lives in the process, so **`uvicorn
+--workers 2` breaks it**: a second worker has its own memory and knows nothing of
+a session opened on the first. And nothing trims the history yet — every turn
+resends all of it, so cost grows with conversation length.
 
 ## Modes
 <sub>[Back to top](#chatbot)</sub>
@@ -264,7 +298,8 @@ The suite runs on pytest, configured under `[tool.pytest.ini_options]` in
 page, socket round trips, and a malformed payload getting an error reply without
 dropping the connection. `tests/test_modes.py` covers each mode directly, with
 no socket involved, which is the point of keeping the reply logic out of the
-router.
+router, plus session isolation: separate conversations never see each other's
+history, and only `claude` records turns.
 
 ## Code style
 <sub>[Back to top](#chatbot)</sub>

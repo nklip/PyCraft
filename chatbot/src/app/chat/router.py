@@ -4,7 +4,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from pydantic import ValidationError
 
 from app.chat import messages, modes
-from app.chat.connections import ConnectionManager, WebSocketConnectionModel
+from app.chat.connections import ConnectionManager
 from app.chat.schemas import Payload
 
 router = APIRouter()
@@ -14,8 +14,14 @@ manager = ConnectionManager()
 
 @router.websocket("/communicate")
 async def communicate(websocket: WebSocket, client_id: str):
-    print("Endpoint '/communicate' called...")
-    await manager.connect(websocket, client_id)
+    connection = await manager.connect(websocket, client_id)
+    conversation = connection.conversation
+    session_id = connection.session_id
+
+    async def say(message: dict) -> None:
+        await manager.send_personal_message(
+            manager.create_json_response({"message": message}, "bot"), session_id
+        )
 
     try:
         while True:
@@ -26,28 +32,19 @@ async def communicate(websocket: WebSocket, client_id: str):
             except ValidationError as error:
                 # A malformed message is the client's problem, not a reason to
                 # drop the connection -- tell the user and keep listening.
-                print(f"Rejected malformed payload from '{client_id}': {error}")
-                await manager.send_personal_message(
-                    manager.create_json_response(
-                        {"message": messages.text("Sorry, I could not read that message.")},
-                        "bot",
-                    ),
-                    client_id,
-                )
+                print(f"Rejected malformed payload on session {session_id}: {error}")
+                await say(messages.text("Sorry, I could not read that message."))
                 continue
 
-            print(f"Message from '{client_id}': {payload.text!r}")
-            reply = manager.create_json_response({"message": modes.dispatch(payload.text)}, "bot")
-            await manager.send_personal_message(reply, client_id)
+            print(f"Session {session_id}: {payload.text!r}")
+            await say(await modes.dispatch(payload.text, conversation))
     except WebSocketDisconnect as web_ex:
-        connection = WebSocketConnectionModel()
-        connection.client_id = client_id
-        connection.socket = websocket
-        manager.disconnect(connection)
-
         if web_ex.code in (1000, 1001):
             print("Session finished.")
         else:
-            print(f"Error in Session: {web_ex}")
+            print(f"Error in session {session_id}: {web_ex}")
     except Exception as ex:
-        print(f"An error has occured while trying to establish WS connection: {ex}")
+        print(f"An error has occured on session {session_id}: {ex}")
+    finally:
+        # Always, so a conversation cannot outlive the tab that owns it.
+        manager.disconnect(session_id)
