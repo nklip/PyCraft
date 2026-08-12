@@ -1,0 +1,58 @@
+[project]
+name = "mathparser"
+version = "0.1.0"
+description = "Interactive top-down mathematical expression parser."
+requires-python = ">=3.14"
+# Mathparser deliberately uses only the Python standard library.
+dependencies = []
+
+[dependency-groups]
+test = [
+    "pytest>=9.1",
+    "pytest-cov>=6.0",
+]
+dev = [
+    { include-group = "test" },
+    "ruff>=0.9",
+]
+
+[tool.uv]
+# Mathparser is a runnable application, not an installable distribution, so uv
+# manages its dependencies without building the project itself.
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    # The formatter already enforces line length; what it leaves behind are
+    # comments and URLs it cannot legally break.
+    "E501",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["calculator"]

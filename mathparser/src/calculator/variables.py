@@ -4,14 +4,16 @@ Created on 04.08.2011
 @author: Lipatov
 """
 
-class Variables(object):
+
+class Variables:
     """
     classdocs
     """
+
     variables = ""
 
     def __init__(self):
-        self.variables = dict()
+        self.variables = {}
 
     def add(self, key, value):
         self.variables[key] = value

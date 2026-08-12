@@ -3,13 +3,13 @@ Created on 02.08.2011
 
 @author: Lipatov
 """
+
 import unittest
 
 from calculator.variables import Variables
 
 
 class TestVariables(unittest.TestCase):
-
     def test_variables(self):
         variables = Variables()
         variables.add("key1", 5.0)

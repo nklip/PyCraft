@@ -12,10 +12,11 @@ from calculator.number import Number
 from calculator.variables import Variables
 
 
-class Calculator(object):
+class Calculator:
     """
-        Enums
+    Enums
     """
+
     TYPE_NONE = 1
     TYPE_DELIMITER = 2
     TYPE_NUMBER = 3
@@ -26,9 +27,9 @@ class Calculator(object):
     TYPE_GRADUS = 2
     typeTangentUnit = TYPE_DEGREE
 
-    '''
+    """
         Variables
-    '''
+    """
     id_string = 0
     stored_string = ""
     stored_token = ""
@@ -128,8 +129,9 @@ class Calculator(object):
 
     def __fifth_step_parsing(self, number):
         local_token = ""
-        if ((self.type_token == self.TYPE_DELIMITER) and
-                (self.stored_token == "+" or self.stored_token == "-")):
+        if (self.type_token == self.TYPE_DELIMITER) and (
+            self.stored_token == "+" or self.stored_token == "-"
+        ):
             local_token = self.stored_token
             self.__get_token()
         self.__sixth_step_parsing(number)
@@ -175,7 +177,19 @@ class Calculator(object):
     def __functions(self, number):
         function_name = self.stored_token
         match function_name:
-            case "abs" | "log10" | "sqrt" | "acos" | "asin" | "atan" | "cos" | "sin" | "tan" | "ceil" | "floor":
+            case (
+                "abs"
+                | "log10"
+                | "sqrt"
+                | "acos"
+                | "asin"
+                | "atan"
+                | "cos"
+                | "sin"
+                | "tan"
+                | "ceil"
+                | "floor"
+            ):
                 self.__one_parameter_functions(function_name, number)
             case "pow" | "log":
                 self.__two_parameter_functions(function_name, number)
@@ -288,7 +302,10 @@ class Calculator(object):
                 length_name += 1
                 if length_name >= 32:
                     raise Exception("Expression is too long")
-            if self.id_string < len(self.stored_string) and self.stored_string[self.id_string] == '(':
+            if (
+                self.id_string < len(self.stored_string)
+                and self.stored_string[self.id_string] == "("
+            ):
                 self.type_token = self.TYPE_FUNCTION
             else:
                 self.type_token = self.TYPE_VARIABLE

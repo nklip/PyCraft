@@ -4,7 +4,8 @@ Created on 01.08.2011
 @author: Lipatov
 """
 
-class Number(object):
+
+class Number:
     value = 0
 
     def __init__(self):
@@ -17,4 +18,4 @@ class Number(object):
         self.value = float(value)
 
     def invert_value(self):
-        self.value = - self.value
+        self.value = -self.value

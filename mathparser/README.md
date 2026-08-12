@@ -10,13 +10,30 @@ mathparser/
 │   ├── calculator/
 │   └── main.py
 ├── tests/
+├── Makefile
+├── pyproject.toml
 ├── README.md
 └── run.sh
 ```
 
-The Python virtual environment is created at `mathparser/.venv` and is
-isolated from the other PyCraft applications. Mathparser uses only the Python
-standard library, so it has no `requirements.txt` file.
+Tooling configuration lives in `pyproject.toml`. The virtual environment is
+created at `mathparser/.venv` and is isolated from the other PyCraft
+applications.
+
+## Requirements
+
+- [uv](https://docs.astral.sh/uv/) — manages the Python version, the virtual
+  environment, and dependencies
+
+```bash
+brew install uv
+```
+
+uv downloads Python 3.14 itself if the machine does not already have it, so no
+interpreter needs to be installed separately.
+
+Mathparser uses only the Python standard library, so it has no runtime
+dependencies. The `.venv` exists to hold the development tools.
 
 ## Start the application
 
@@ -36,19 +53,42 @@ Enter your expression: 2 + 3 * 4
 Enter your expression: quit
 ```
 
-## Run the tests
+## Everyday commands
 
-Use the launcher to create the environment and run all tests:
+Run these from the `mathparser` directory. `make` on its own lists them.
+
+| Target | What it does |
+| --- | --- |
+| `make install` | Sync development tools into `.venv` |
+| `make run` | Start the interactive parser |
+| `make test` | Run the test suite |
+| `make coverage` | Run the test suite with a coverage report |
+| `make lint` | Check formatting and lint rules |
+| `make format` | Apply formatting and safe lint fixes |
+| `make check` | `lint` plus `test` — everything CI would run |
+| `make clean` | Delete caches and build artefacts |
+
+Targets that take extra arguments accept them through `ARGS`:
 
 ```bash
-./mathparser/run.sh --test
+make test ARGS="-k division -vv"
 ```
 
-To run them manually:
+## Tests
 
 ```bash
-source mathparser/.venv/bin/activate
-PYTHONPATH=mathparser/src python -m unittest discover \
-    --start-directory mathparser/tests \
-    --verbose
+make test
+```
+
+The suite runs on pytest, configured under `[tool.pytest.ini_options]` in
+`pyproject.toml`. The tests are `unittest.TestCase` classes and pytest runs them
+unchanged.
+
+## Code style
+
+`ruff` handles both linting and formatting, configured in `pyproject.toml`:
+
+```bash
+make format
+make lint
 ```

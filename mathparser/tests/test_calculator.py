@@ -3,13 +3,13 @@ Created on 02.08.2011
 
 @author: Nikita Lipatov
 """
+
 import unittest
 
 from calculator.calculator import Calculator
 
 
 class TestCalculator(unittest.TestCase):
-
     def test_plus(self):
         calc = Calculator()
         self.assertEqual(calc.calculate("2 + 3"), 5.0)
@@ -67,18 +67,15 @@ class TestCalculator(unittest.TestCase):
 
     def test_division_by_zero(self):
         calc = Calculator()
-        self.assertRaises(BaseException, calc.calculate, "6/0")
-        pass
+        self.assertRaisesRegex(Exception, "Division by zero", calc.calculate, "6/0")
 
     def test_modules_by_zero(self):
         calc = Calculator()
-        self.assertRaises(BaseException, calc.calculate, "6%0")
-        pass
+        self.assertRaisesRegex(Exception, "Division by zero", calc.calculate, "6%0")
 
     def test_brackets_unbalance(self):
         calc = Calculator()
-        self.assertRaises(BaseException, calc.calculate, "(2 + 2 * 2")
-        pass
+        self.assertRaisesRegex(Exception, "Brackets unbalance", calc.calculate, "(2 + 2 * 2")
 
     def test_function_abs(self):
         calc = Calculator()
