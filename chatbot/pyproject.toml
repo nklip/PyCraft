@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "WebSocket chatbot UI built with FastAPI."
 requires-python = ">=3.14"
 dependencies = [
+    # Anthropic's Python SDK, behind the claude mode. Optional at runtime in the
+    # sense that matters: with no API key the mode says so and the rest works.
+    "anthropic>=0.121.0",
     "fastapi>=0.141.1",
     # Backs starlette's Jinja2Templates
     "jinja2>=3.1.6",

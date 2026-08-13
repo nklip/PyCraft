@@ -33,6 +33,7 @@ chatbot/
 │       │   │   ├── help.py
 │       │   │   └── types.py
 │       │   ├── catalog.py
+│       │   ├── claude_client.py
 │       │   ├── connections.py
 │       │   ├── conversations.py
 │       │   ├── messages.py
@@ -50,6 +51,8 @@ chatbot/
 │       └── settings.py
 ├── tests/
 │   ├── test_app.py
+│   ├── test_claude.py
+│   ├── test_messages.py
 │   └── test_modes.py
 ├── .env.example
 ├── Makefile
@@ -159,7 +162,7 @@ an argument may contain more.
 | `help` | `help`, `help: echo` | Lists the modes, or explains one of them |
 | `echo` | `echo: Test` | Replies `Hello from backend! Did you say 'Test'?` |
 | `type` | `type`, `type: table` | On its own, offers a menu of content types; named, renders one |
-| `claude` | `claude: Why is the sky blue?` | Scaffolding only — see below |
+| `claude` | `claude: Why is the sky blue?` | Asks Claude, if an API key is configured — see below |
 
 Anything that names no known mode gets a reply listing what is available.
 
@@ -185,9 +188,31 @@ The greeting deliberately carries no buttons. The menu used to be a literal HTML
 string in `buttons.js`, rendered because the greeting carried a magic `"default"`
 payload, which meant it could only ever appear on the first message.
 
-**Claude mode is scaffolding, not an integration.** It is reachable, tested, and
-listed by help, but makes no model call — `chat/modes/claude.py` documents what
-wiring it up involves, in order. No API dependency is installed.
+**Claude mode is a toggle, not a requirement.** With an `ANTHROPIC_API_KEY` in
+`chatbot/.env` it sends the session's history to Claude Haiku 4.5 through the
+[Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) and
+replies with the answer. Without one it stays reachable and listed by help, and
+answers with what to do about it — so a fresh checkout is a chat that explains
+itself rather than one with a broken mode in it. Every other mode is unaffected
+either way.
+
+The split is between the turn and the transport. `chat/modes/claude.py` decides
+what to send and what to record; `chat/claude_client.py` owns the key, the model,
+the SDK client, and what a failure sounds like. Changing the model, or the
+provider, is a change to one file that no mode has to know about.
+
+Two rules the mode enforces, both about what ends up in the history:
+
+- **A turn is recorded only once it has been answered.** The question goes up
+  with the request, but a question the model never answered would otherwise be
+  resent on every later turn, at cost, forever.
+- **A failure is a reply, not a stack trace.** A rejected key, a rate limit, an
+  unreachable API, a refusal, a hit token limit — each comes back as ordinary
+  chat text naming the problem, and leaves the session as it was.
+
+Not there yet: nothing trims or compacts the history, the reply is awaited whole
+rather than streamed as deltas land, and a table still has to be prose rather
+than a tool call with a schema.
 
 **The browser does not choose the mode.** It sends the raw text and the server
 routes it. Until this change the JavaScript mapped text to one of two intents
@@ -255,8 +280,19 @@ overridden by a real environment variable.
 | --- | --- | --- |
 | `PROFILE` | `local` | Names the running environment; surfaced in the page template |
 | `WS_HOST` | `ws://127.0.0.1:8000` | WebSocket endpoint the browser connects back to |
+| `ANTHROPIC_API_KEY` | unset | Turns the `claude` mode on. Everything else runs without it |
 
 `.env` is git-ignored; `.env.example` is the committed template.
+
+The API key is held as a `SecretStr`, so printing the settings — in a log line or
+a traceback — shows `**********` rather than the key. It reaches the Anthropic
+client and nowhere else.
+
+`.env.example` ships `ANTHROPIC_API_KEY` set to a placeholder, and `run.sh` copies
+that file to `.env` on a first run. The placeholder counts as **unset**: a fresh
+checkout gets the mode's explanation of what it needs, rather than a 401 from
+Anthropic. Replace it with a real key and restart the server to switch the mode
+on.
 
 ## Start the application
 <sub>[Back to top](#chatbot)</sub>
@@ -320,7 +356,13 @@ page, socket round trips, and a malformed payload getting an error reply without
 dropping the connection. `tests/test_modes.py` covers each mode directly, with
 no socket involved, which is the point of keeping the reply logic out of the
 router, plus session isolation: separate conversations never see each other's
-history, and only `claude` records turns.
+history, and only `claude` records turns. `tests/test_claude.py` covers the
+Anthropic client — which keys count as configured, how a response becomes chat
+text, and every failure that has to arrive as a message rather than a stack.
+
+**The suite never calls Anthropic.** Tests that exercise the `claude` mode
+replace the model call and the key check, so they behave the same on a machine
+with a real key in `.env` as on one without — and running them costs nothing.
 
 ## Code style
 <sub>[Back to top](#chatbot)</sub>

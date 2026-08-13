@@ -3,12 +3,31 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from app.chat import claude_client
+from app.chat.router import manager
 from app.main import server
 
 
 @pytest.fixture
 def client():
     return TestClient(server)
+
+
+@pytest.fixture
+def claude(monkeypatch):
+    """
+    Claude mode with the model call replaced by a report of what it was sent.
+
+    The session tests are about which history reaches the model, so a stub that
+    answers with the size of that history says everything they need -- and the
+    suite stays off the network whether or not this machine has an API key.
+    """
+
+    async def complete(history: list[dict]) -> str:
+        return f"history:{len(history)}"
+
+    monkeypatch.setattr(claude_client, "configured", lambda: True)
+    monkeypatch.setattr(claude_client, "complete", complete)
 
 
 def test_chatbot_page_renders(client):
@@ -60,7 +79,7 @@ def test_malformed_message_gets_an_error_and_keeps_the_connection(client):
     assert recovered["message"]["text"] == "Hello from backend! Did you say 'Test'?"
 
 
-def test_each_connection_is_its_own_session(client):
+def test_each_connection_is_its_own_session(client, claude):
     """A tab is a session: two tabs never share history, and a reload starts over."""
 
     def ask_twice(socket):
@@ -75,33 +94,30 @@ def test_each_connection_is_its_own_session(client):
         with client.websocket_connect("/communicate?client_id=same-user") as second:
             second_replies = ask_twice(second)
 
-    # Same client_id, two connections: the histories must not have merged.
-    assert "2 turns recorded" in first_replies[0]
-    assert "2 turns recorded" in second_replies[0]
-    assert "4 turns recorded" in first_replies[1]
-    assert "4 turns recorded" in second_replies[1]
+            # Both have replied, so both are registered: one entry each rather
+            # than a single connection shared by the client_id they have in common.
+            assert len(manager.active_connections) == 2
 
-    # And the sessions are distinct.
-    assert _session_of(first_replies[0]) != _session_of(second_replies[0])
+    # Same client_id, two connections: the second sent up its own history, not
+    # one carrying the four turns the first had already accumulated.
+    assert first_replies == ["history:1", "history:3"]
+    assert second_replies == ["history:1", "history:3"]
 
 
-def test_a_reconnect_starts_a_fresh_session(client):
+def test_a_reconnect_starts_a_fresh_session(client, claude):
     with client.websocket_connect("/communicate?client_id=same-user") as socket:
         socket.send_json({"type": "user", "text": "claude: remember this"})
-        before = socket.receive_json()["message"]["text"]
+        socket.receive_json()
+        before = set(manager.active_connections)
 
     # Closing the socket is a tab closing: the history goes with it.
     with client.websocket_connect("/communicate?client_id=same-user") as socket:
         socket.send_json({"type": "user", "text": "claude: anything there?"})
         after = socket.receive_json()["message"]["text"]
+        sessions = set(manager.active_connections)
 
-    assert "2 turns recorded" in after, "history survived a reconnect"
-    assert _session_of(before) != _session_of(after)
-
-
-def _session_of(reply: str) -> str:
-    """Pull the session id out of the claude placeholder."""
-    return reply.split("session `")[1].split("`")[0]
+    assert after == "history:1", "history survived a reconnect"
+    assert before.isdisjoint(sessions)
 
 
 def test_a_crashing_mode_tells_the_client_instead_of_going_quiet(client, monkeypatch):

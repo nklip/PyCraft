@@ -1,28 +1,18 @@
 """
-Claude mode: scaffolding only -- no model call is made yet.
+Claude mode: sends the conversation to the model and replies with the answer.
 
-The reply below is a placeholder so the mode is reachable, testable, and listed
-by help while the real integration is still to be written. Wiring it up means
-replacing reply() and adding, roughly in this order:
+The mode is a toggle. Without an API key it stays reachable, listed by help, and
+answers with what to do about it -- so a checkout with no key is a chat that
+explains itself rather than one with a broken mode in it. `claude_client.py`
+owns the key, the model, and the call; this module owns the turn.
 
-1. An API client built once at startup, not per message, reading its key from
-   settings (never from the message).
-2. Per-client conversation history. The Messages API is stateless -- the full
-   history is sent on every turn -- so it has to be stored on this side, keyed
-   by client_id, and trimmed or compacted as it grows.
-3. A translation from the response content blocks into `messages.py` builders.
-   The frontend should never see the API's wire format; keeping that mapping
-   here is what lets the model or provider change without touching JavaScript.
-4. Streaming. Replies arrive as deltas, and the socket can forward them as they
-   land instead of making the user wait for the whole turn.
-5. Handling for a response that stops early -- a refusal or a token limit --
-   surfaced as an ordinary text reply rather than an exception.
-
-A table should come from a tool call with a schema rather than from parsing
-prose, so the result maps straight onto `messages.table`.
+Still to come, in rough order: trimming or compacting the history as it grows,
+streaming the reply as deltas land instead of waiting for the whole turn, and a
+tool call with a schema so a table comes back as data for `messages.table`
+rather than as prose to parse.
 """
 
-from app.chat import conversations, messages
+from app.chat import claude_client, conversations, messages
 from app.chat.conversations import Conversation
 
 # Opting in is what gets this mode the conversation at all. Dispatch hands the
@@ -32,24 +22,36 @@ from app.chat.conversations import Conversation
 NEEDS_HISTORY = True
 
 NAME = "claude"
-SUMMARY = "Ask Claude. Not wired up yet."
+SUMMARY = "Ask Claude. Needs an Anthropic API key."
 USAGE = "claude: Why is the sky blue?"
 
 
-PLACEHOLDER = "Claude mode is not wired up yet, so I cannot answer that."
+DISABLED = (
+    "Claude mode is switched off because no `ANTHROPIC_API_KEY` was found. "
+    "Put a key in `chatbot/.env` as `ANTHROPIC_API_KEY=sk-ant-...` and restart the "
+    "server, and this mode answers for real.\n\n"
+    "Every other mode works without it -- say `help` for the list."
+)
 
 
 async def reply(argument: str, conversation: Conversation) -> dict:
     if not argument:
         return messages.text(f"Ask something, like `{USAGE}`.")
 
-    # The turn is recorded even though nothing is sent: this is the history that
-    # will go up with the request, so building it now means the session
-    # behaviour is real and testable before a network call exists.
-    conversation.record(conversations.USER, argument)
-    conversation.record(conversations.ASSISTANT, PLACEHOLDER)
+    if not claude_client.configured():
+        return messages.text(DISABLED)
 
-    return messages.text(
-        f"{PLACEHOLDER} This tab is session `{conversation.short_id}` and has "
-        f"{conversation.turns} turns recorded -- that history is what will be sent."
-    )
+    # The question goes up with the history but is not recorded until it has been
+    # answered: a history holding a turn the model never replied to would be
+    # resent on every later turn.
+    turn = [*conversation.history, {"role": conversations.USER, "content": argument}]
+
+    try:
+        answer = await claude_client.complete(turn)
+    except claude_client.ClaudeError as error:
+        return messages.text(str(error))
+
+    conversation.record(conversations.USER, argument)
+    conversation.record(conversations.ASSISTANT, answer)
+
+    return messages.text(answer)

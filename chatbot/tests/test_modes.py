@@ -5,13 +5,41 @@ import inspect
 
 import pytest
 
-from app.chat import messages, modes
+from app.chat import claude_client, messages, modes
 from app.chat.conversations import Conversation
 
 
 def dispatch(text: str, conversation: Conversation | None = None) -> dict:
     """Run one message through the dispatcher. Sync so the tests stay plain."""
     return asyncio.run(modes.dispatch(text, conversation or Conversation()))
+
+
+@pytest.fixture
+def claude(monkeypatch):
+    """
+    Claude mode with a key present and the model call replaced.
+
+    Returns the list of conversations sent, so a test can assert on what would
+    have gone up. Nothing here touches the network, and the fixture is what makes
+    the mode behave the same way whether or not the developer running the suite
+    has a real key in their `.env`.
+    """
+    sent = []
+
+    async def complete(history: list[dict]) -> str:
+        sent.append(history)
+        return f"Answer {len(sent)}"
+
+    monkeypatch.setattr(claude_client, "configured", lambda: True)
+    monkeypatch.setattr(claude_client, "complete", complete)
+
+    return sent
+
+
+@pytest.fixture
+def claude_without_a_key(monkeypatch):
+    """Claude mode with no API key configured, however the machine is set up."""
+    monkeypatch.setattr(claude_client, "configured", lambda: False)
 
 
 @pytest.mark.parametrize(
@@ -124,20 +152,41 @@ def test_parse_splits_mode_from_argument(text, name, argument):
 # --- claude mode and conversation history ---------------------------------
 
 
-def test_claude_is_scaffolded_but_not_wired_up():
-    assert "not wired up yet" in dispatch("claude: Why is the sky blue?")["text"]
+def test_claude_answers_with_what_the_model_said(claude):
+    assert dispatch("claude: Why is the sky blue?")["text"] == "Answer 1"
 
 
-def test_claude_records_both_sides_of_the_turn():
+def test_claude_sends_the_question_it_was_given(claude):
+    dispatch("claude: Why is the sky blue?")
+
+    assert claude == [[{"role": "user", "content": "Why is the sky blue?"}]]
+
+
+def test_claude_sends_the_history_along_with_the_new_question(claude):
+    """The Messages API is stateless, so the whole exchange goes up every turn."""
+    conversation = Conversation()
+
+    dispatch("claude: first", conversation)
+    dispatch("claude: second", conversation)
+
+    assert claude[1] == [
+        {"role": "user", "content": "first"},
+        {"role": "assistant", "content": "Answer 1"},
+        {"role": "user", "content": "second"},
+    ]
+
+
+def test_claude_records_both_sides_of_the_turn(claude):
     conversation = Conversation()
 
     dispatch("claude: first", conversation)
 
     assert [turn["role"] for turn in conversation.history] == ["user", "assistant"]
     assert conversation.history[0]["content"] == "first"
+    assert conversation.history[1]["content"] == "Answer 1"
 
 
-def test_claude_accumulates_history_within_one_conversation():
+def test_claude_accumulates_history_within_one_conversation(claude):
     conversation = Conversation()
 
     dispatch("claude: first", conversation)
@@ -150,11 +199,52 @@ def test_claude_accumulates_history_within_one_conversation():
     ]
 
 
-def test_claude_without_an_argument_records_nothing():
+def test_claude_without_an_argument_records_nothing(claude):
     conversation = Conversation()
 
     dispatch("claude:", conversation)
 
+    assert conversation.turns == 0
+    assert claude == []
+
+
+# --- claude mode without an API key ----------------------------------------
+
+
+def test_claude_explains_itself_without_a_key(claude_without_a_key):
+    body = dispatch("claude: Why is the sky blue?")["text"]
+
+    assert "ANTHROPIC_API_KEY" in body
+    assert ".env" in body
+
+
+def test_claude_records_nothing_without_a_key(claude_without_a_key):
+    """The turn never happened, so it has no place in the history."""
+    conversation = Conversation()
+
+    dispatch("claude: first", conversation)
+
+    assert conversation.turns == 0
+
+
+def test_claude_is_still_listed_when_it_has_no_key(claude_without_a_key):
+    """A missing key switches the mode off, it does not remove it."""
+    assert "claude" in dispatch("help")["text"]
+
+
+def test_a_failed_call_is_reported_and_recorded_nowhere(monkeypatch):
+    """A model that could not be reached leaves the session as it was."""
+
+    async def fail(history):
+        raise claude_client.ClaudeError("Anthropic is rate limiting me.")
+
+    monkeypatch.setattr(claude_client, "configured", lambda: True)
+    monkeypatch.setattr(claude_client, "complete", fail)
+
+    conversation = Conversation()
+    reply = dispatch("claude: first", conversation)
+
+    assert reply["text"] == "Anthropic is rate limiting me."
     assert conversation.turns == 0
 
 
@@ -186,7 +276,7 @@ def test_modes_without_history_cannot_accept_a_conversation():
         assert len(parameters) == expected, f"{name} has an unexpected reply() signature"
 
 
-def test_conversations_are_isolated_from_each_other():
+def test_conversations_are_isolated_from_each_other(claude):
     one, two = Conversation(), Conversation()
 
     dispatch("claude: mine", one)
