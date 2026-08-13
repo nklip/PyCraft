@@ -158,7 +158,7 @@ an argument may contain more.
 | --- | --- | --- |
 | `help` | `help`, `help: echo` | Lists the modes, or explains one of them |
 | `echo` | `echo: Test` | Replies `Hello from backend! Did you say 'Test'?` |
-| `type` | `type: table` | Renders a content type, to show how the chat displays it |
+| `type` | `type`, `type: table` | On its own, offers a menu of content types; named, renders one |
 | `claude` | `claude: Why is the sky blue?` | Scaffolding only — see below |
 
 Anything that names no known mode gets a reply listing what is available.
@@ -169,8 +169,21 @@ plus a single entry in the `MODES` registry: `help` lists whatever is
 registered, so it cannot fall out of date with the code.
 
 Replies are built through `chat/messages.py`, which holds the render contract
-the JavaScript understands. A mode never assembles that shape by hand, so
-changing how a table is delivered is a change in one file.
+the JavaScript understands — `text`, `table`, and `choices`. A mode never
+assembles that shape by hand, so changing how a table is delivered is a change
+in one file. On the client, `MESSAGE_RENDERERS` in `chat.js` has one entry per
+`template_type`: those two lists are the ends of the same contract, and an
+unrecognised type now logs and says so rather than rendering as "no results".
+
+**Menus are replies, not chrome.** A `choices` message carries a group label and
+a list of (label, command) pairs; clicking one sends its command as though it had
+been typed, so a menu can never do something a typed message could not. `type`
+on its own answers with the `Types` menu, built from the renderer registry — it
+cannot offer a type the chat is unable to draw.
+
+The greeting deliberately carries no buttons. The menu used to be a literal HTML
+string in `buttons.js`, rendered because the greeting carried a magic `"default"`
+payload, which meant it could only ever appear on the first message.
 
 **Claude mode is scaffolding, not an integration.** It is reachable, tested, and
 listed by help, but makes no model call — `chat/modes/claude.py` documents what

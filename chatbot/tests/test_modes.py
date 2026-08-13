@@ -64,6 +64,35 @@ def test_type_text_renders_a_text_message():
     assert dispatch("type: text")["template_type"] == messages.TEXT
 
 
+def test_bare_type_offers_the_menu():
+    """`type` on its own renders the Types button rather than describing it."""
+    reply = dispatch("type")
+
+    assert reply["template_type"] == messages.CHOICES
+    assert reply["label"] == "Types"
+
+    commands = {option["command"] for option in reply["msg_payload"]}
+    assert commands == {"type: table", "type: text"}
+
+
+def test_the_menu_only_offers_types_that_can_be_rendered():
+    """Built from the renderer registry, so it cannot advertise a missing type."""
+    from app.chat.modes import types
+
+    offered = {option["label"].lower() for option in dispatch("type")["msg_payload"]}
+
+    assert offered == set(types.RENDERERS)
+
+
+def test_every_menu_command_is_something_the_chat_accepts():
+    """A click sends its command as text, so each one must dispatch cleanly."""
+    for option in dispatch("type")["msg_payload"]:
+        reply = dispatch(option["command"])
+
+        assert reply["template_type"] in (messages.TABLE, messages.TEXT)
+        assert "I cannot render" not in reply.get("text", "")
+
+
 def test_type_lists_what_it_can_render_when_asked_for_something_else():
     body = dispatch("type: hologram")["text"]
 

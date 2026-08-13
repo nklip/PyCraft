@@ -3,6 +3,10 @@
 from app.chat import messages
 from app.chat.catalog import ORGANISATIONS
 
+# The separator the menu builds its commands with. Imported lazily below to
+# avoid a circular import; kept here so the commands cannot drift from parse().
+SEPARATOR = ":"
+
 NAME = "type"
 SUMMARY = "Render a content type, to see how the chat displays it."
 USAGE = "type: table"
@@ -23,14 +27,25 @@ RENDERERS = {
 }
 
 
+MENU_LABEL = "Types"
+
+
 async def reply(argument: str) -> dict:
     wanted = argument.lower()
-    renderer = RENDERERS.get(wanted)
 
+    if not wanted:
+        # Asked for the mode itself: offer the menu rather than describing it.
+        # The options come from RENDERERS, so the menu cannot list something the
+        # chat is unable to draw.
+        return messages.choices(
+            "Which one would you like to see?",
+            MENU_LABEL,
+            [(name.capitalize(), f"{NAME}{SEPARATOR} {name}") for name in sorted(RENDERERS)],
+        )
+
+    renderer = RENDERERS.get(wanted)
     if renderer is None:
         known = ", ".join(f"`{name}`" for name in sorted(RENDERERS))
-        if wanted:
-            return messages.text(f"I cannot render `{wanted}`. I know: {known}.")
-        return messages.text(f"Name a type to render: {known}. For example `{USAGE}`.")
+        return messages.text(f"I cannot render `{wanted}`. I know: {known}.")
 
     return renderer()

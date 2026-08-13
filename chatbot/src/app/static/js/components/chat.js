@@ -1,13 +1,9 @@
 const converter = new showdown.Converter();
 
+// No buttons here: menus are something a reply offers, not something the first
+// message hardcodes. Type `type` to see one.
 const GREETING = [{
     "text": "Hey, I'm here to help you. Please type 'help' to see what I can do for you.",
-    "buttons": [
-        {
-            "title": "default",
-            "payload": "default"
-        }
-    ],
 }];
 
 function scrollToBottomOfResults() {
@@ -137,9 +133,7 @@ function setBotResponse(response) {
                 }
 
                 if (Object.hasOwnProperty.call(response[i], "buttons")) {
-                    if (response[i].buttons.length > 0) {
-                        addButtons(response[i].buttons);
-                    }
+                    addButtons(response[i].buttons);
                 }
                 if (Object.hasOwnProperty.call(response[i], "table")) {
                     let clickable = true;
@@ -227,25 +221,41 @@ function sendMessage(payload) {
     }
 }
 
+// One renderer per template_type. Adding a message shape means adding an entry
+// here and a builder in messages.py -- the two ends of the same contract.
+const MESSAGE_RENDERERS = {
+    text: (message) => ({ text: message.text }),
+    table: (message) => ({
+        text: message.text,
+        clickable: message.clickable,
+        table: message.msg_payload,
+    }),
+    choices: (message) => ({
+        text: message.text,
+        buttons: { label: message.label, options: message.msg_payload },
+    }),
+};
+
 ws.onmessage = function(event) {
-    let response = [];
-    let data = JSON.parse(event.data);
+    const data = JSON.parse(event.data);
+    const message = data && data.message;
 
-    console.log("Message from backend...!");
-    console.log(data);
-
-    if (data !== undefined) {
-        if (data.message["template_type"] == "text") {
-            response.push({"text" : data.message["text"]});
-        } else if (data.message["template_type"] == "table") {
-            response.push({
-                "text": data.message["text"],
-                "clickable": data.message["clickable"],
-                "table": data.message["msg_payload"]
-            });
-        }
-        setBotResponse(response);
+    if (!message) {
+        console.error("Received a reply with no message", data);
+        return;
     }
+
+    const render = MESSAGE_RENDERERS[message.template_type];
+    if (!render) {
+        // Previously this produced an empty array, which rendered as "I cannot
+        // find any results now" -- an unrelated-looking error for what is
+        // really a missing renderer.
+        console.error("No renderer for template_type", message.template_type, message);
+        setBotResponse([{ text: "I do not know how to display that reply." }]);
+        return;
+    }
+
+    setBotResponse([render(message)]);
 }
 
 /**
