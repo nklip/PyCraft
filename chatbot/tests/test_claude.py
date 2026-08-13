@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import anthropic
 import httpx
 import pytest
-from pydantic import SecretStr
+from pydantic import SecretStr, ValidationError
 
 from app.chat import claude_client
 from app.settings import PLACEHOLDER_API_KEY, Settings, settings
@@ -91,7 +91,7 @@ def test_a_truncated_reply_says_so():
     answer = claude_client.text_of(response(text_block("It goes"), stop_reason="max_tokens"))
 
     assert answer.startswith("It goes")
-    assert str(claude_client.MAX_TOKENS) in answer
+    assert str(settings.claude_max_tokens) in answer
 
 
 def test_an_empty_reply_still_says_something():
@@ -101,10 +101,17 @@ def test_an_empty_reply_still_says_something():
 # --- failures --------------------------------------------------------------
 
 
-def answering(monkeypatch, with_: Exception | SimpleNamespace) -> None:
-    """Stand a client in front of `complete()` that raises or returns `with_`."""
+def answering(monkeypatch, with_: Exception | SimpleNamespace) -> dict:
+    """
+    Stand a client in front of `complete()` that raises or returns `with_`.
+
+    Returns the dict of arguments the call was made with, filled in once it has
+    been made, so a test can check what would have gone to Anthropic.
+    """
+    sent = {}
 
     async def create(**kwargs):
+        sent.update(kwargs)
         if isinstance(with_, Exception):
             raise with_
         return with_
@@ -114,6 +121,8 @@ def answering(monkeypatch, with_: Exception | SimpleNamespace) -> None:
         "client",
         lambda: SimpleNamespace(messages=SimpleNamespace(create=create)),
     )
+
+    return sent
 
 
 def ask() -> str:
@@ -155,6 +164,38 @@ def test_a_successful_call_comes_back_as_text(monkeypatch):
     answering(monkeypatch, with_=response(text_block("Because of the air.")))
 
     assert ask() == "Because of the air."
+
+
+# --- the model and the reply ceiling ---------------------------------------
+
+
+def test_the_defaults_work_without_an_env_file():
+    """`.env` is optional for these two: the code ships usable values."""
+    without_env = Settings(_env_file=None)
+
+    assert without_env.claude_model == "claude-haiku-4-5"
+    assert without_env.claude_max_tokens == 4096
+
+
+def test_the_call_uses_whatever_the_settings_say(monkeypatch):
+    """Changing the model is an `.env` edit, not a code change."""
+    sent = answering(monkeypatch, with_=response(text_block("Fine.")))
+    monkeypatch.setattr(settings, "claude_model", "claude-sonnet-5")
+    monkeypatch.setattr(settings, "claude_max_tokens", 128)
+
+    ask()
+
+    assert sent["model"] == "claude-sonnet-5"
+    assert sent["max_tokens"] == 128
+
+
+def test_the_reply_ceiling_has_to_be_a_positive_number():
+    """A zero or negative ceiling would fail on every call instead of at startup."""
+    with pytest.raises(ValidationError):
+        Settings(claude_max_tokens=0)
+
+    with pytest.raises(ValidationError):
+        Settings(claude_max_tokens=-1)
 
 
 def test_the_client_is_built_once(monkeypatch):

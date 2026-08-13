@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from pydantic import SecretStr
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # chatbot/ -- up out of src/chatbot/
@@ -39,6 +39,18 @@ class Settings(BaseSettings):
     # the chat is unaffected. SecretStr so the value cannot reach a log or a
     # traceback by being printed alongside the settings it lives in.
     anthropic_api_key: SecretStr = SecretStr("")
+
+    # The model the claude mode talks to. Haiku is the smallest and quickest in
+    # the family: a chat reply is short and someone is watching the socket for
+    # it, so latency matters more here than depth would.
+    claude_model: str = "claude-haiku-4-5"
+
+    # A ceiling on a runaway answer rather than a target: replies are read in a
+    # chat bubble, and this is what caps the cost of a single turn. Only "more
+    # than nothing" is enforced here -- each model has its own upper limit, so
+    # the API is the thing that knows it, and it answers with an error the chat
+    # reports like any other.
+    claude_max_tokens: int = Field(default=4096, gt=0)
 
     @property
     def has_anthropic_api_key(self) -> bool:

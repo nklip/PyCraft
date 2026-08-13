@@ -15,15 +15,10 @@ import anthropic
 
 from app.settings import settings
 
-# Haiku is the smallest and quickest model in the family. A chat reply is short
-# and someone is watching the socket for it, so latency matters more here than
-# depth would.
-MODEL = "claude-haiku-4-5"
-
-# A ceiling on a runaway answer rather than a target: replies are read in a chat
-# bubble, and this is what caps the cost of a single turn.
-MAX_TOKENS = 4096
-
+# The model and the reply ceiling are configuration, not constants: both are read
+# from settings on every call, so `.env` decides them without a code change. The
+# system prompt stays here -- it describes what this application is, which is not
+# something a deployment should be able to rewrite.
 SYSTEM = (
     "You are the assistant inside PyCraft's chatbot demo, a small FastAPI chat UI. "
     "Replies are rendered as Markdown in a chat bubble, so keep them short and answer "
@@ -70,8 +65,8 @@ async def complete(history: list[dict]) -> str:
     """
     try:
         response = await client().messages.create(
-            model=MODEL,
-            max_tokens=MAX_TOKENS,
+            model=settings.claude_model,
+            max_tokens=settings.claude_max_tokens,
             system=SYSTEM,
             messages=history,
         )
@@ -80,9 +75,14 @@ async def complete(history: list[dict]) -> str:
             "Anthropic rejected the API key. Check `ANTHROPIC_API_KEY` in `chatbot/.env`."
         ) from error
     except anthropic.PermissionDeniedError as error:
-        raise ClaudeError(f"That API key is not allowed to use `{MODEL}`.") from error
+        raise ClaudeError(
+            f"That API key is not allowed to use `{settings.claude_model}`."
+        ) from error
     except anthropic.NotFoundError as error:
-        raise ClaudeError(f"Anthropic does not know a model called `{MODEL}`.") from error
+        raise ClaudeError(
+            f"Anthropic does not know a model called `{settings.claude_model}`. "
+            "Check `CLAUDE_MODEL` in `chatbot/.env`."
+        ) from error
     except anthropic.RateLimitError as error:
         raise ClaudeError("Anthropic is rate limiting me. Try again in a moment.") from error
     except anthropic.APIStatusError as error:
@@ -110,6 +110,6 @@ def text_of(response) -> str:
         return "I had nothing to say to that."
 
     if response.stop_reason == "max_tokens":
-        body += f"\n\n_(Cut off at the {MAX_TOKENS} token reply limit.)_"
+        body += f"\n\n_(Cut off at the {settings.claude_max_tokens} token reply limit.)_"
 
     return body

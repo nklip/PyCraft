@@ -189,7 +189,8 @@ string in `buttons.js`, rendered because the greeting carried a magic `"default"
 payload, which meant it could only ever appear on the first message.
 
 **Claude mode is a toggle, not a requirement.** With an `ANTHROPIC_API_KEY` in
-`chatbot/.env` it sends the session's history to Claude Haiku 4.5 through the
+`chatbot/.env` it sends the session's history to Claude — Haiku 4.5 unless
+`CLAUDE_MODEL` says otherwise — through the
 [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python) and
 replies with the answer. Without one it stays reachable and listed by help, and
 answers with what to do about it — so a fresh checkout is a chat that explains
@@ -281,6 +282,8 @@ overridden by a real environment variable.
 | `PROFILE` | `local` | Names the running environment; surfaced in the page template |
 | `WS_HOST` | `ws://127.0.0.1:8000` | WebSocket endpoint the browser connects back to |
 | `ANTHROPIC_API_KEY` | unset | Turns the `claude` mode on. Everything else runs without it |
+| `CLAUDE_MODEL` | `claude-haiku-4-5` | The model the `claude` mode talks to |
+| `CLAUDE_MAX_TOKENS` | `4096` | Ceiling on one reply, and so on the cost of one turn |
 
 `.env` is git-ignored; `.env.example` is the committed template.
 
@@ -293,6 +296,15 @@ that file to `.env` on a first run. The placeholder counts as **unset**: a fresh
 checkout gets the mode's explanation of what it needs, rather than a 401 from
 Anthropic. Replace it with a real key and restart the server to switch the mode
 on.
+
+`CLAUDE_MODEL` and `CLAUDE_MAX_TOKENS` both carry working defaults in
+`settings.py`, so the application runs with neither of them set. Changing the
+model is then an `.env` edit rather than a code change — and the reply ceiling
+sits next to the key that pays for it, because that is what it caps. It is
+validated as a positive number, so a nonsensical value is refused at startup
+rather than failing on every message; each model's own upper limit is left to
+the API, which knows it and answers with an error the chat reports like any
+other.
 
 ## Start the application
 <sub>[Back to top](#chatbot)</sub>
