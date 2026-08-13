@@ -12,6 +12,15 @@ Per-project setup and commands live in that project's `README.md`.
 All three projects share the same shape. A fourth should follow it rather than
 invent its own.
 
+- **Follow established Python industry practices.** Validate every decision
+  presented as a standard practice against current authoritative sources: the
+  Python documentation and PEPs, PyPA specifications and guides, or the
+  relevant tool or framework's official documentation. Also verify that the
+  choice fits this repository's existing conventions and validate the result
+  with the applicable tests, linting, type checks, or runtime checks. When
+  authoritative guidance differs or a project constraint justifies a
+  deviation, document the tradeoff instead of claiming one approach is
+  universally standard.
 - **[uv](https://docs.astral.sh/uv/) manages everything.** Dependencies,
   tooling configuration, and the virtual environment come from the project's
   `pyproject.toml`; `uv.lock` is committed. There is no `requirements.txt`, and
