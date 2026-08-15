@@ -11,13 +11,14 @@ not assume the repository is a Django repository.
 1. [Project structure](#project-structure)
 2. [Sessions](#sessions)
 3. [Modes](#modes)
-4. [How the frontend loads](#how-the-frontend-loads)
-5. [Requirements](#requirements)
-6. [Configuration](#configuration)
-7. [Start the application](#start-the-application)
-8. [Everyday commands](#everyday-commands)
-9. [Tests](#tests)
-10. [Code style](#code-style)
+4. [Message flows](#message-flows)
+5. [How the frontend loads](#how-the-frontend-loads)
+6. [Requirements](#requirements)
+7. [Configuration](#configuration)
+8. [Start the application](#start-the-application)
+9. [Everyday commands](#everyday-commands)
+10. [Tests](#tests)
+11. [Code style](#code-style)
 
 ## Project structure
 <sub>[Back to top](#chatbot)</sub>
@@ -219,6 +220,214 @@ than a tool call with a schema.
 routes it. Until this change the JavaScript mapped text to one of two intents
 and silently discarded everything else, which put a limit on what the chat could
 answer inside the client.
+
+## Message flows
+<sub>[Back to top](#chatbot)</sub>
+
+Every reply takes the same path: socket, validation, dispatch, a mode, a builder
+from `messages.py`, and one renderer on the client. What differs between message
+types is which mode answers and which shape it builds.
+
+The first diagram shows that path in full. The rest compress the return leg —
+in every case the reply travels back through `dispatch` to the router, which
+sends it with `ConnectionManager.send_personal_message` keyed by the session
+rather than by `client_id`, because a `client_id` may have several tabs open.
+
+### A text reply
+
+The baseline, and the shape every other flow is a variation on. The handshake at
+the top happens once per tab, not once per message.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant R as router
+    participant CM as ConnectionManager
+    participant D as dispatch
+    participant E as echo
+    participant MSG as messages
+
+    B->>R: opens a WebSocket on /communicate with a client_id
+    R->>CM: connect
+    CM-->>R: a Connection holding a new Conversation
+    Note over B,CM: one tab, one session, from here on
+
+    B->>B: setUserResponse draws the typed text
+    B->>R: user message, text "echo: Test"
+    R->>R: validate against Payload
+    R->>D: dispatch the text and the conversation
+    D->>D: parse into mode "echo" and argument "Test"
+    D->>E: reply with the argument alone
+    Note over D,E: echo does not set NEEDS_HISTORY, so it never sees the conversation
+    E->>MSG: text
+    MSG-->>E: template_type "text"
+    E-->>D: message
+    D-->>R: message
+    R->>CM: send to this session
+    CM-->>B: bot reply
+    B->>B: MESSAGE_RENDERERS text, then setBotResponse
+```
+
+### A table
+
+Same path, different builder and different renderer. The rows come from the
+catalog rather than from anything the user typed.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant R as router
+    participant D as dispatch
+    participant T as types
+    participant MSG as messages
+
+    B->>R: user message, text "type: table"
+    R->>D: dispatch
+    D->>T: reply with argument "table"
+    T->>T: look "table" up in RENDERERS
+    T->>MSG: table, with the catalog rows
+    MSG-->>T: template_type "table", rows in msg_payload
+    T-->>R: message
+    R-->>B: bot reply
+    B->>B: MESSAGE_RENDERERS table, then table.js draws the rows
+```
+
+### A menu, and the click that follows
+
+Two round trips, and the second one is indistinguishable from a typed message.
+That is the point of the design: a menu can never do something the user could
+not have typed.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant R as router
+    participant D as dispatch
+    participant T as types
+    participant MSG as messages
+
+    B->>R: user message, text "type"
+    R->>D: dispatch
+    D->>T: reply with an empty argument
+    T->>MSG: choices, built from the RENDERERS registry
+    MSG-->>T: template_type "choices", a label and one command per option
+    T-->>R: message
+    R-->>B: bot reply
+    B->>B: buttons.js draws the Types group
+
+    Note over B: the user clicks "Table"
+    B->>B: setUserResponse, then send the option's command
+    B->>R: user message, text "type: table"
+    Note over R,MSG: from here it is the table flow above, unchanged
+```
+
+### Claude, with a key
+
+The only flow that leaves the process, and the only one that writes to the
+session. The whole history goes up because the Messages API is stateless.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant R as router
+    participant D as dispatch
+    participant CL as claude
+    participant CV as Conversation
+    participant CC as claude_client
+    participant API as Anthropic
+
+    B->>R: user message, text "claude: Why is the sky blue?"
+    R->>D: dispatch
+    Note over D,CL: claude sets NEEDS_HISTORY, so it is handed the conversation
+    D->>CL: reply with the argument and the conversation
+
+    CL->>CC: configured
+    CC-->>CL: true, a usable key is set
+    CL->>CV: read history
+    CV-->>CL: the turns so far
+    CL->>CC: complete, with the history plus the new question
+
+    CC->>API: messages.create with model, max_tokens and system
+    API-->>CC: content blocks and a stop_reason
+    CC->>CC: text_of flattens the text blocks
+    CC-->>CL: the reply, as one string
+
+    CL->>CV: record the question, then the answer
+    Note over CL,CV: recorded only now, so an unanswered turn is never resent
+    CL-->>R: text message
+    R-->>B: bot reply
+```
+
+### When Claude cannot answer
+
+Two different reasons, one shape of outcome: an ordinary text message, and a
+session left exactly as it was.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant R as router
+    participant CL as claude
+    participant CV as Conversation
+    participant CC as claude_client
+    participant API as Anthropic
+
+    B->>R: user message, text "claude: hello"
+    R->>CL: dispatch
+
+    alt no API key is configured
+        CL->>CC: configured
+        CC-->>CL: false
+        CL-->>R: text explaining that a key is needed
+    else the call fails
+        CL->>CC: complete
+        CC->>API: messages.create
+        API-->>CC: 401, 429, or no connection at all
+        CC-->>CL: raises ClaudeError, carrying readable text
+        CL-->>R: that text, as an ordinary message
+    end
+
+    R-->>B: bot reply
+    Note over CV: nothing was recorded on either branch
+```
+
+### When the server cannot answer
+
+A message the router cannot read and a mode that raises are handled differently
+on purpose: the first is the client's problem, the second is a bug here.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as Browser
+    participant R as router
+    participant CM as ConnectionManager
+    participant D as dispatch
+
+    alt the payload does not validate
+        B->>R: a message with no text field
+        R->>R: ValidationError from Payload
+        R-->>B: sorry, I could not read that message
+        Note over R: the loop continues and the socket stays open
+        B->>R: the next message is answered normally
+    else a mode raises
+        B->>R: user message
+        R->>D: dispatch
+        D-->>R: RuntimeError
+        R-->>B: something went wrong on my side
+        R->>CM: disconnect, in the finally block
+        Note over R,CM: the handler returns, so this connection ends
+    end
+```
+
+Saying something before going quiet is the part worth keeping. Swallowing the
+exception would leave the browser waiting on a reply that never arrives, which
+reads as a frozen chat rather than as an error.
 
 ## How the frontend loads
 <sub>[Back to top](#chatbot)</sub>
