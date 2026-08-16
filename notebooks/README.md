@@ -49,7 +49,11 @@ installed first.
 Run this from the `notebooks` folder:
 
 ```bash
-uv run --with jupyter --with anthropic --with python-dotenv jupyter lab
+uv run \
+  --with jupyter \
+  --with anthropic \
+  --with python-dotenv \
+  jupyter lab
 ```
 
 **There is no separate install step.** `uv run --with` builds a throwaway
@@ -94,7 +98,11 @@ already lists every `.ipynb` beside it. **Double-click one to load it.**
 To skip that step, name the file when starting:
 
 ```bash
-uv run --with jupyter --with anthropic --with python-dotenv jupyter lab 001_tools.ipynb
+uv run \
+  --with jupyter \
+  --with anthropic \
+  --with python-dotenv \
+  jupyter lab 001_tools.ipynb
 ```
 
 The browser then opens on `/lab/tree/001_tools.ipynb` with the notebook loaded
@@ -117,10 +125,15 @@ path under the directory it was started in, but not above it.
 ## Add a library
 <sub>[Back to top](#notebooks)</sub>
 
-**Add another `--with` to the launch command.** For pandas:
+**Add one more `--with` line to the launch command.** For pandas:
 
 ```bash
-uv run --with jupyter --with anthropic --with python-dotenv --with pandas jupyter lab
+uv run \
+  --with jupyter \
+  --with anthropic \
+  --with python-dotenv \
+  --with pandas \
+  jupyter lab
 ```
 
 This is the form worth keeping: the command names everything the notebooks need,
