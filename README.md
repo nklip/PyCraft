@@ -5,6 +5,9 @@ My micro Python applications
 * [lemon](lemon/README.md) - Django project for Little Lemon backend
 * [mathparser](mathparser/README.md) - Complex Math parser working from console
 
+Not an application, but kept here too:
+* [notebooks](notebooks/README.md) - Jupyter notebooks for playing with the Anthropic API
+
 ## Checking every project
 <sub>[Back to top](#pycraft)</sub>
 
