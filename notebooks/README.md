@@ -20,23 +20,31 @@ be run a cell at a time and edited while it runs.
 
 ```text
 notebooks/
-├── tools_usage/
+├── building_with_the_claude_api/
+│   ├── features/
+│   ├── rag/
+│   └── tools_usage/
 └── README.md
 ```
 
 Notebooks live in subject folders, numbered so they read in the order they were
-written. `tools_usage` covers Anthropic tool use — tool schemas, fine-grained
-streaming, the text editor tool, web search — the same tool-calling ideas the
-chatbot's [claude mode](../chatbot/README.md#modes) does not use yet.
+written:
+
+| Folder | Subject |
+| --- | --- |
+| `features` | Extended thinking, citations, images, prompt caching, code execution |
+| `rag` | Chunking, embeddings, vector search, BM25, hybrid retrieval |
+| `tools_usage` | Tool schemas, fine-grained streaming, the text editor tool, web search — the same tool-calling ideas the chatbot's [claude mode](../chatbot/README.md#modes) does not use yet |
 
 **The notebooks themselves are deliberately not listed here.** They are added,
 renamed, and split as subjects are worked through, and a file list would be
-wrong within a week. Open the folder to see what is in it; this file explains
-how to run whatever you find there.
+wrong within a week. Open a folder to see what is in it; this file explains how
+to run whatever you find there. Data a notebook reads — a PDF, a CSV, images —
+sits beside the notebook that reads it.
 
 `.env` sits at the top of this folder rather than beside the notebooks, so one
-key serves every subfolder. That works because of how the key is looked up —
-see [Configuration](#configuration).
+file serves every subject folder however deeply they nest. That works because of
+how the keys are looked up — see [Configuration](#configuration).
 
 Running a notebook leaves artefacts beside it — `.ipynb_checkpoints/` from
 Jupyter, and `.backups/` from the text editor tool, which copies a file before
@@ -65,6 +73,7 @@ uv run \
   --with jupyter \
   --with anthropic \
   --with python-dotenv \
+  --with voyageai \
   jupyter lab
 ```
 
@@ -78,8 +87,9 @@ Each `--with` is one library the notebooks need:
 | Flag | Why |
 | --- | --- |
 | `--with jupyter` | JupyterLab itself, and the kernel that runs the cells |
-| `--with anthropic` | The Anthropic SDK, imported by every notebook |
-| `--with python-dotenv` | Reads `.env`, so the API key never sits in a cell |
+| `--with anthropic` | The Anthropic SDK, imported by most notebooks |
+| `--with python-dotenv` | Reads `.env`, so an API key never sits in a cell |
+| `--with voyageai` | Voyage AI's SDK, used by the `rag` notebooks for embeddings |
 
 JupyterLab prints a `http://localhost:8888/lab?token=...` URL and opens it in a
 browser. Stop the server with `Ctrl-C` in that terminal, twice — the second one
@@ -105,8 +115,8 @@ recommends. The tradeoff is that the versions are not pinned here — see
 <sub>[Back to top](#notebooks)</sub>
 
 JupyterLab serves the folder it was started in, so the file browser on the left
-lists what is beside it — here, the `tools_usage` folder. **Double-click the
-folder, then the notebook, to load it.**
+lists what is beside it — here, `building_with_the_claude_api/` and the subject
+folders inside it. **Double-click down to the notebook to load it.**
 
 To skip that, name the file when starting:
 
@@ -115,19 +125,19 @@ uv run \
   --with jupyter \
   --with anthropic \
   --with python-dotenv \
-  jupyter lab tools_usage/<notebook>.ipynb
+  --with voyageai \
+  jupyter lab building_with_the_claude_api/rag/<notebook>.ipynb
 ```
 
 The browser then opens on `/lab/tree/<notebook>.ipynb` with that notebook loaded
 rather than on the launcher.
 
 Note what that path is missing: naming a file inside a subfolder makes **that
-subfolder the server root**, so JupyterLab serves `tools_usage/` and the URL is
-relative to it. The file browser is then scoped to that folder and cannot
-navigate up to `notebooks/`. The key still loads, because `load_dotenv()`
-searches the filesystem rather than Jupyter's tree — but if you want to move
-between subject folders in one session, start from `notebooks/` without naming
-a file.
+subfolder the server root**, so JupyterLab serves `rag/` and the URL is relative
+to it. The file browser is then scoped to that folder and cannot navigate up to
+`notebooks/`. The keys still load, because `load_dotenv()` searches the
+filesystem rather than Jupyter's tree — but if you want to move between subject
+folders in one session, start from `notebooks/` without naming a file.
 
 Once it is open:
 
@@ -153,6 +163,7 @@ uv run \
   --with jupyter \
   --with anthropic \
   --with python-dotenv \
+  --with voyageai \
   --with pandas \
   jupyter lab
 ```
@@ -176,26 +187,32 @@ try something, and move it into a `--with` once it turns out to be needed.
 ## Configuration
 <sub>[Back to top](#notebooks)</sub>
 
-Each notebook calls `load_dotenv()` and then builds an `Anthropic()` client,
-which reads `ANTHROPIC_API_KEY` from the environment. That key is the one thing
-this folder needs configured, and it lives in `notebooks/.env`:
+Notebooks call `load_dotenv()` and then build a client that reads its key from
+the environment — `Anthropic()` for the Claude API, `voyageai.Client()` for
+embeddings. Both keys live in `notebooks/.env`:
 
 ```bash
 ANTHROPIC_API_KEY=sk-ant-...
+VOYAGE_API_KEY=pa-...
 ```
 
-**The key sits a directory above the notebooks, and that is deliberate.**
-`load_dotenv()` searches from the notebook's own folder *upwards* until it finds
-a `.env`, so a notebook in `tools_usage/` walks up one level and finds
-`notebooks/.env`. One key therefore serves every subfolder, and a new subject
-folder needs no `.env` of its own. `.env` is git-ignored for the whole
-repository, so the key cannot be committed from here by accident.
+`ANTHROPIC_API_KEY` is what most notebooks need. `VOYAGE_API_KEY` is only used
+by `rag`, which embeds text through Voyage AI rather than Claude — that folder
+will not run without it, and everything else is unaffected by its absence.
+
+**The keys sit above the notebooks, and that is deliberate.** `load_dotenv()`
+searches from the notebook's own folder *upwards* until it finds a `.env`, so a
+notebook two levels down in `building_with_the_claude_api/rag/` still reaches
+`notebooks/.env`. One file therefore serves every subject folder at any depth,
+and a new one needs no `.env` of its own. `.env` is git-ignored for the whole
+repository, so a key cannot be committed from here by accident.
 
 Two consequences of that search worth knowing:
 
-- **The nearest file wins, and only that one is read.** Dropping a `.env` into
-  `tools_usage/` would shadow `notebooks/.env` entirely rather than adding to it,
-  so any variable defined only in the outer file would quietly stop loading.
+- **The nearest file wins, and only that one is read.** Dropping a `.env` into a
+  subject folder would shadow `notebooks/.env` entirely rather than adding to it
+  — so a `rag/.env` holding only `VOYAGE_API_KEY` would take the Claude key away
+  from every notebook in that folder.
 - **The search does not stop at this repository.** It runs to the filesystem
   root, so a forgotten `.env` in a parent directory can supply a key. Print
   `find_dotenv()` when a value is not what you expect — it names the file that
