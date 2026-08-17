@@ -88,6 +88,9 @@ coverage.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints
+# Written by the text editor tool in notebooks/tools_usage: a copy of each file
+# before Claude edits it, so it is scratch output of a run rather than source.
+.backups/
 
 # pyenv
 # Root-scoped on purpose: a per-project .python-version is uv's interpreter pin
