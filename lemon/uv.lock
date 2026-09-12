@@ -445,15 +445,15 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "django-debug-toolbar", specifier = ">=8.0.0" },
-    { name = "pytest", specifier = ">=8.3" },
-    { name = "pytest-cov", specifier = ">=6.0" },
-    { name = "pytest-django", specifier = ">=4.9" },
+    { name = "pytest", specifier = ">=9.1.1" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+    { name = "pytest-django", specifier = ">=4.14.0" },
     { name = "ruff", specifier = ">=0.16.7" },
 ]
 test = [
-    { name = "pytest", specifier = ">=8.3" },
-    { name = "pytest-cov", specifier = ">=6.0" },
-    { name = "pytest-django", specifier = ">=4.9" },
+    { name = "pytest", specifier = ">=9.1.1" },
+    { name = "pytest-cov", specifier = ">=7.1.0" },
+    { name = "pytest-django", specifier = ">=4.14.0" },
 ]
 
 [[package]]

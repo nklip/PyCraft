@@ -23,9 +23,9 @@ test = [
     # starlette's TestClient imports httpx2, and anthropic 1.x builds its errors
     # from httpx2 objects, which the claude client tests construct by hand. The
     # first httpx generation is gone from this project with anthropic 0.x.
-    "httpx2>=2.12",
-    "pytest>=9.1",
-    "pytest-cov>=6.0",
+    "httpx2>=2.12.0",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
 ]
 dev = [
     { include-group = "test" },
