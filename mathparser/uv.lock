@@ -111,7 +111,7 @@ test = [
 dev = [
     { name = "pytest", specifier = ">=9.1" },
     { name = "pytest-cov", specifier = ">=6.0" },
-    { name = "ruff", specifier = ">=0.9" },
+    { name = "ruff", specifier = ">=0.16.7" },
 ]
 test = [
     { name = "pytest", specifier = ">=9.1" },

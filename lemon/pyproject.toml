@@ -20,8 +20,8 @@ test = [
 ]
 dev = [
     { include-group = "test" },
-    "django-debug-toolbar>=7.1",
-    "ruff>=0.9",
+    "django-debug-toolbar>=8.0.0",
+    "ruff>=0.16.7",
 ]
 
 [tool.uv]
