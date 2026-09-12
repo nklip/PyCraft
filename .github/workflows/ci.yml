@@ -44,7 +44,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v10
+      # setup-uv publishes no moving major tag past v7, so this is pinned to an
+      # exact release. Dependabot's github-actions entry keeps it current.
+      - uses: astral-sh/setup-uv@v10.1.0
         with:
           enable-cache: true
           cache-dependency-glob: ${{ matrix.project }}/uv.lock

@@ -21,7 +21,8 @@ updates:
         update-types: ["minor", "patch"]
     open-pull-requests-limit: 5
 
-  # The workflow pins actions by major version; this keeps those current too.
+  # The workflow pins actions by major tag where one exists and by exact
+  # release where it does not; this keeps both kinds current.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
