@@ -9,7 +9,7 @@ import asyncio
 from types import SimpleNamespace
 
 import anthropic
-import httpx
+import httpx2
 import pytest
 from pydantic import SecretStr, ValidationError
 
@@ -130,8 +130,8 @@ def ask() -> str:
 
 
 def api_error(status: int, kind: type[anthropic.APIStatusError]) -> anthropic.APIStatusError:
-    request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
-    return kind("boom", response=httpx.Response(status, request=request), body=None)
+    request = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
+    return kind("boom", response=httpx2.Response(status, request=request), body=None)
 
 
 @pytest.mark.parametrize(
@@ -144,7 +144,7 @@ def api_error(status: int, kind: type[anthropic.APIStatusError]) -> anthropic.AP
         (api_error(500, anthropic.InternalServerError), "answered with an error"),
         (
             anthropic.APIConnectionError(
-                request=httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+                request=httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
             ),
             "could not reach",
         ),
