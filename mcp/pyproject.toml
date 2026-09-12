@@ -12,7 +12,7 @@ dependencies = [
     "prompt-toolkit>=3.0.51",
     # Declares the tool schemas in mcp_server.py. It arrives through the mcp
     # SDK as well, but this project imports it directly.
-    "pydantic>=2.13.4",
+    "pydantic>=2.13.5",
     "python-dotenv>=1.1.0",
 ]
 
