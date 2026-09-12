@@ -10,12 +10,12 @@ dependencies = [
     "fastapi>=0.141.1",
     # Backs starlette's Jinja2Templates
     "jinja2>=3.1.6",
-    "pydantic>=2.13.4",
+    "pydantic>=2.13.5",
     "pydantic-settings>=2.7",
-    "uvicorn>=0.52.1",
+    "uvicorn>=0.52.4",
     # uvicorn's WebSocket protocol implementation. The test client does not use
     # it, so tests pass without it while the real server rejects upgrades.
-    "websockets>=17.0.1",
+    "websockets>=17.1",
 ]
 
 [dependency-groups]
@@ -32,7 +32,7 @@ test = [
 ]
 dev = [
     { include-group = "test" },
-    "ruff>=0.9",
+    "ruff>=0.16.6",
 ]
 
 [tool.uv]
