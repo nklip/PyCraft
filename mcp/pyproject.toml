@@ -1,12 +1,70 @@
 [project]
-name = "app"
+# Not "mcp": that is the name of the SDK this project depends on, and a project
+# cannot share a name with its own dependency.
+name = "mcp-chat"
 version = "0.1.0"
-description = "Add your description here"
+description = "Command-line MCP chat client and document server built on the Anthropic API."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "anthropic>=0.51.0",
     "mcp[cli]>=1.8.0",
     "prompt-toolkit>=3.0.51",
+    # Declares the tool schemas in mcp_server.py. It arrives through the mcp
+    # SDK as well, but this project imports it directly.
+    "pydantic>=2.13.4",
     "python-dotenv>=1.1.0",
 ]
+
+[dependency-groups]
+test = [
+    "pytest>=9.1",
+    "pytest-asyncio>=1.3",
+    "pytest-cov>=6.0",
+]
+dev = [
+    { include-group = "test" },
+    "ruff>=0.9",
+]
+
+[tool.uv]
+# MCP Chat is a deployable application, not an installable distribution, so uv
+# manages its dependencies without building the project itself.
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    # The formatter already enforces line length; what it leaves behind are
+    # comments and URLs it cannot legally break.
+    "E501",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "mcp_client", "mcp_server"]

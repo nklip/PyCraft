@@ -1,8 +1,8 @@
 # Delegates to each project's own Makefile so the monorepo has one entry point.
-# Every target below exists in all three projects and runs in each of them,
+# Every target below exists in all four projects and runs in each of them,
 # stopping at the first failure.
 
-PROJECTS := chatbot lemon mathparser
+PROJECTS := chatbot lemon mathparser mcp
 
 .DEFAULT_GOAL := help
 .PHONY: help projects check install test lint format clean

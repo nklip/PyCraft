@@ -1,6 +1,6 @@
-from pydantic import Field
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.prompts import base
+from pydantic import Field
 
 mcp = MCPServer("DocumentMCP", log_level="ERROR")
 
@@ -13,50 +13,45 @@ docs = {
     "spec.txt": "These specifications define the technical requirements for the equipment.",
 }
 
+
 @mcp.tool(
     name="read_doc_contents",
-    description="Read the contents of a document and return it as a string."
+    description="Read the contents of a document and return it as a string.",
 )
-def read_document(
-    doc_id: str = Field(description="Id of the document to read")
-):
+def read_document(doc_id: str = Field(description="Id of the document to read")):
     if doc_id not in docs:
         raise ValueError(f"Doc with id {doc_id} not found")
     return docs[doc_id]
 
+
 @mcp.tool(
     name="edit_document",
-    description="Edit a document by replacing a string in the documents content with a new string"
+    description="Edit a document by replacing a string in the documents content with a new string",
 )
 def edit_document(
-    doc_id:str = Field(description="Id of the document that will be edited"),
+    doc_id: str = Field(description="Id of the document that will be edited"),
     old_str: str = Field(
         description="The text to replace. Must match exactly, including whitespace"
     ),
-    new_str: str = Field(
-        description="The new text to insert in place of the old text"
-    ),
+    new_str: str = Field(description="The new text to insert in place of the old text"),
 ):
     if doc_id not in docs:
         raise ValueError(f"Doc with id {doc_id} not found")
 
     docs[doc_id] = docs[doc_id].replace(old_str, new_str)
 
-@mcp.resource(
-    "docs://documents",
-    mime_type="application/json"
-)
+
+@mcp.resource("docs://documents", mime_type="application/json")
 def list_docs() -> list[str]:
     return list(docs.keys())
 
-@mcp.resource(
-    "docs://documents/{doc_id}",
-    mime_type="text/plain"
-)
+
+@mcp.resource("docs://documents/{doc_id}", mime_type="text/plain")
 def fetch_doc(doc_id: str) -> str:
     if doc_id not in docs:
         raise ValueError(f"Doc with id {doc_id} not found")
     return docs[doc_id]
+
 
 @mcp.prompt(
     name="format",
@@ -78,6 +73,7 @@ def format_document(
     """
 
     return [base.UserMessage(prompt)]
+
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")

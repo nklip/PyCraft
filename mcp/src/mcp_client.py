@@ -1,23 +1,24 @@
-import sys
 import asyncio
-from typing import Optional, Any
+import json
+import sys
 from contextlib import AsyncExitStack
+from typing import Any
+
 from mcp import ClientSession, StdioServerParameters, types
 from mcp.client.stdio import stdio_client
 
-import json
 
 class MCPClient:
     def __init__(
         self,
         command: str,
         args: list[str],
-        env: Optional[dict] = None,
+        env: dict | None = None,
     ):
         self._command = command
         self._args = args
         self._env = env
-        self._session: Optional[ClientSession] = None
+        self._session: ClientSession | None = None
         self._exit_stack: AsyncExitStack = AsyncExitStack()
 
     async def connect(self):
@@ -26,13 +27,9 @@ class MCPClient:
             args=self._args,
             env=self._env,
         )
-        stdio_transport = await self._exit_stack.enter_async_context(
-            stdio_client(server_params)
-        )
+        stdio_transport = await self._exit_stack.enter_async_context(stdio_client(server_params))
         _stdio, _write = stdio_transport
-        self._session = await self._exit_stack.enter_async_context(
-            ClientSession(_stdio, _write)
-        )
+        self._session = await self._exit_stack.enter_async_context(ClientSession(_stdio, _write))
         await self._session.initialize()
 
     def session(self) -> ClientSession:
@@ -46,9 +43,7 @@ class MCPClient:
         result = await self.session().list_tools()
         return result.tools
 
-    async def call_tool(
-        self, tool_name: str, tool_input: dict
-    ) -> types.CallToolResult | None:
+    async def call_tool(self, tool_name: str, tool_input: dict) -> types.CallToolResult | None:
         return await self.session().call_tool(tool_name, tool_input)
 
     async def list_prompts(self) -> list[types.Prompt]:
@@ -80,6 +75,7 @@ class MCPClient:
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.cleanup()
 
+
 # For testing
 async def main():
     async with MCPClient(
@@ -89,6 +85,7 @@ async def main():
     ) as _client:
         result = await _client.list_tools()
         print(result)
+
 
 if __name__ == "__main__":
     if sys.platform == "win32":

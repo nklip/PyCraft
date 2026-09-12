@@ -10,32 +10,26 @@ class Claude:
     def add_user_message(self, messages: list, message):
         user_message = {
             "role": "user",
-            "content": message.content
-            if isinstance(message, Message)
-            else message,
+            "content": message.content if isinstance(message, Message) else message,
         }
         messages.append(user_message)
 
     def add_assistant_message(self, messages: list, message):
         assistant_message = {
             "role": "assistant",
-            "content": message.content
-            if isinstance(message, Message)
-            else message,
+            "content": message.content if isinstance(message, Message) else message,
         }
         messages.append(assistant_message)
 
     def text_from_message(self, message: Message):
-        return "\n".join(
-            [block.text for block in message.content if block.type == "text"]
-        )
+        return "\n".join([block.text for block in message.content if block.type == "text"])
 
     def chat(
         self,
         messages,
         system=None,
         temperature=1.0,
-        stop_sequences=[],
+        stop_sequences=None,
         tools=None,
         thinking=False,
         thinking_budget=1024,
@@ -45,7 +39,7 @@ class Claude:
             "max_tokens": 8000,
             "messages": messages,
             "temperature": temperature,
-            "stop_sequences": stop_sequences,
+            "stop_sequences": stop_sequences or [],
         }
 
         if thinking:

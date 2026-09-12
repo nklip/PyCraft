@@ -1,6 +1,5 @@
-from typing import List, Tuple
-from mcp.types import Prompt, PromptMessage
 from anthropic.types import MessageParam
+from mcp.types import Prompt, PromptMessage
 
 from core.chat import Chat
 from core.claude import Claude
@@ -27,16 +26,14 @@ class CliChat(Chat):
     async def get_doc_content(self, doc_id: str) -> str:
         return await self.doc_client.read_resource(f"docs://documents/{doc_id}")
 
-    async def get_prompt(
-        self, command: str, doc_id: str
-    ) -> list[PromptMessage]:
+    async def get_prompt(self, command: str, doc_id: str) -> list[PromptMessage]:
         return await self.doc_client.get_prompt(command, {"doc_id": doc_id})
 
     async def _extract_resources(self, query: str) -> str:
         mentions = [word[1:] for word in query.split() if word.startswith("@")]
 
         doc_ids = await self.list_docs_ids()
-        mentioned_docs: list[Tuple[str, str]] = []
+        mentioned_docs: list[tuple[str, str]] = []
 
         for doc_id in doc_ids:
             if doc_id in mentions:
@@ -55,9 +52,7 @@ class CliChat(Chat):
         words = query.split()
         command = words[0].replace("/", "")
 
-        messages = await self.doc_client.get_prompt(
-            command, {"doc_id": words[1]}
-        )
+        messages = await self.doc_client.get_prompt(command, {"doc_id": words[1]})
 
         self.messages += convert_prompt_messages_to_message_params(messages)
         return True
@@ -82,7 +77,7 @@ class CliChat(Chat):
         Note the user's query might contain references to documents like "@report.docx". The "@" is only
         included as a way of mentioning the doc. The actual name of the document would be "report.docx".
         If the document content is included in this prompt, you don't need to use an additional tool to read the document.
-        Answer the user's question directly and concisely. Start with the exact information they need. 
+        Answer the user's question directly and concisely. Start with the exact information they need.
         Don't refer to or mention the provided context in any way - just use it to inform your answer.
         """
 
@@ -90,7 +85,7 @@ class CliChat(Chat):
 
 
 def convert_prompt_message_to_message_param(
-    prompt_message: "PromptMessage",
+    prompt_message: PromptMessage,
 ) -> MessageParam:
     role = "user" if prompt_message.role == "user" else "assistant"
 
@@ -136,8 +131,6 @@ def convert_prompt_message_to_message_param(
 
 
 def convert_prompt_messages_to_message_params(
-    prompt_messages: List[PromptMessage],
-) -> List[MessageParam]:
-    return [
-        convert_prompt_message_to_message_param(msg) for msg in prompt_messages
-    ]
+    prompt_messages: list[PromptMessage],
+) -> list[MessageParam]:
+    return [convert_prompt_message_to_message_param(msg) for msg in prompt_messages]

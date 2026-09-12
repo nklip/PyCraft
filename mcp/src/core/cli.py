@@ -1,24 +1,21 @@
-from typing import List, Optional
 from prompt_toolkit import PromptSession
+from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
+from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.document import Document
+from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.styles import Style
-from prompt_toolkit.history import InMemoryHistory
-from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
-from prompt_toolkit.document import Document
-from prompt_toolkit.buffer import Buffer
 
 from core.cli_chat import CliChat
 
 
 class CommandAutoSuggest(AutoSuggest):
-    def __init__(self, prompts: List):
+    def __init__(self, prompts: list):
         self.prompts = prompts
         self.prompt_dict = {prompt.name: prompt for prompt in prompts}
 
-    def get_suggestion(
-        self, buffer: Buffer, document: Document
-    ) -> Optional[Suggestion]:
+    def get_suggestion(self, buffer: Buffer, document: Document) -> Suggestion | None:
         text = document.text
 
         if not text.startswith("/"):
@@ -42,11 +39,11 @@ class UnifiedCompleter(Completer):
         self.prompt_dict = {}
         self.resources = []
 
-    def update_prompts(self, prompts: List):
+    def update_prompts(self, prompts: list):
         self.prompts = prompts
         self.prompt_dict = {prompt.name: prompt for prompt in prompts}
 
-    def update_resources(self, resources: List):
+    def update_resources(self, resources: list):
         self.resources = resources
 
     def get_completions(self, document, complete_event):
@@ -99,9 +96,7 @@ class UnifiedCompleter(Completer):
                 doc_prefix = parts[-1]
 
                 for resource in self.resources:
-                    if "id" in resource and resource["id"].lower().startswith(
-                        doc_prefix.lower()
-                    ):
+                    if "id" in resource and resource["id"].lower().startswith(doc_prefix.lower()):
                         yield Completion(
                             resource["id"],
                             start_position=-len(doc_prefix),
@@ -152,11 +147,7 @@ class CliApp:
                     buffer.start_completion(select_first=False)
                 elif len(parts) == 2:
                     arg = parts[1]
-                    if (
-                        "doc" in arg.lower()
-                        or "file" in arg.lower()
-                        or "id" in arg.lower()
-                    ):
+                    if "doc" in arg.lower() or "file" in arg.lower() or "id" in arg.lower():
                         buffer.start_completion(select_first=False)
 
         self.history = InMemoryHistory()

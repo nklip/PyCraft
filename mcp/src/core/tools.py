@@ -1,8 +1,10 @@
 import json
-from typing import Optional, Literal, List
-from mcp.types import CallToolResult, Tool, TextContent
-from mcp_client import MCPClient
+from typing import Literal
+
 from anthropic.types import Message, ToolResultBlockParam
+from mcp.types import CallToolResult, TextContent, Tool
+
+from mcp_client import MCPClient
 
 
 class ToolManager:
@@ -25,7 +27,7 @@ class ToolManager:
     @classmethod
     async def _find_client_with_tool(
         cls, clients: list[MCPClient], tool_name: str
-    ) -> Optional[MCPClient]:
+    ) -> MCPClient | None:
         """Finds the first client that has the specified tool."""
         for client in clients:
             tools = await client.list_tools()
@@ -52,20 +54,16 @@ class ToolManager:
     @classmethod
     async def execute_tool_requests(
         cls, clients: dict[str, MCPClient], message: Message
-    ) -> List[ToolResultBlockParam]:
+    ) -> list[ToolResultBlockParam]:
         """Executes a list of tool requests against the provided clients."""
-        tool_requests = [
-            block for block in message.content if block.type == "tool_use"
-        ]
+        tool_requests = [block for block in message.content if block.type == "tool_use"]
         tool_result_blocks: list[ToolResultBlockParam] = []
         for tool_request in tool_requests:
             tool_use_id = tool_request.id
             tool_name = tool_request.name
             tool_input = tool_request.input
 
-            client = await cls._find_client_with_tool(
-                list(clients.values()), tool_name
-            )
+            client = await cls._find_client_with_tool(list(clients.values()), tool_name)
 
             if not client:
                 tool_result_part = cls._build_tool_result_part(
@@ -75,32 +73,27 @@ class ToolManager:
                 continue
 
             try:
-                tool_output: CallToolResult | None = await client.call_tool(
-                    tool_name, tool_input
-                )
+                tool_output: CallToolResult | None = await client.call_tool(tool_name, tool_input)
                 items = []
                 if tool_output:
                     items = tool_output.content
-                content_list = [
-                    item.text for item in items if isinstance(item, TextContent)
-                ]
+                content_list = [item.text for item in items if isinstance(item, TextContent)]
                 content_json = json.dumps(content_list)
                 tool_result_part = cls._build_tool_result_part(
                     tool_use_id,
                     content_json,
-                    "error"
-                    if tool_output and tool_output.is_error
-                    else "success",
+                    "error" if tool_output and tool_output.is_error else "success",
                 )
             except Exception as e:
                 error_message = f"Error executing tool '{tool_name}': {e}"
                 print(error_message)
+                # This branch is reached because the call raised, so tool_output
+                # was never bound. Reading it here raised UnboundLocalError and
+                # lost the original error; the status is simply "error".
                 tool_result_part = cls._build_tool_result_part(
                     tool_use_id,
                     json.dumps({"error": error_message}),
-                    "error"
-                    if tool_output and tool_output.is_error
-                    else "success",
+                    "error",
                 )
 
             tool_result_blocks.append(tool_result_part)
