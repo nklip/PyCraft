@@ -20,9 +20,15 @@ dependencies = [
 
 [dependency-groups]
 test = [
+    # Both httpx generations are load-bearing, and neither replaces the other.
+    # starlette's TestClient imports httpx2 and only falls back to httpx with a
+    # deprecation warning, while anthropic still builds its errors from httpx
+    # objects, which the claude client tests construct by hand. httpx arrives
+    # through anthropic anyway; the tests import it, so they declare it.
+    "httpx>=0.28",
+    "httpx2>=2.12",
     "pytest>=9.1",
     "pytest-cov>=6.0",
-    "httpx2>=2.10",
 ]
 dev = [
     { include-group = "test" },
