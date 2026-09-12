@@ -8,7 +8,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "anthropic>=0.51.0",
-    "mcp[cli]>=1.8.0",
+    "mcp[cli]>=2.2.0",
     "prompt-toolkit>=3.0.51",
     # Declares the tool schemas in mcp_server.py. It arrives through the mcp
     # SDK as well, but this project imports it directly.
