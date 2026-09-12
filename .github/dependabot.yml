@@ -1,0 +1,31 @@
+# Turns dependency alerts into pull requests. Without this, GitHub only reports
+# vulnerabilities and every upgrade stays a manual errand.
+version: 2
+
+updates:
+  # Every project locks with uv, so one entry covers all of them. mcp is listed
+  # even though CI does not build it yet: uv.lock is what Dependabot reads.
+  - package-ecosystem: "uv"
+    directories:
+      - "/chatbot"
+      - "/lemon"
+      - "/mathparser"
+      - "/mcp"
+    schedule:
+      interval: "weekly"
+    groups:
+      # Minor and patch bumps travel together, one pull request per project.
+      # Majors stay on their own, because those are the ones worth reading.
+      routine:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 5
+
+  # The workflow pins actions by major version; this keeps those current too.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]

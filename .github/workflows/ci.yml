@@ -1,0 +1,55 @@
+# Runs the same `make check` a developer runs, so CI and local development
+# cannot drift apart. Each project owns its own toolchain, so each gets its own
+# job rather than one job that knows how to build all of them.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+# Nothing here writes to the repository.
+permissions:
+  contents: read
+
+# A new push to a branch makes the run in progress obsolete.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  projects:
+    name: Discover projects
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # The root Makefile owns the project list. Reading it here keeps the
+      # matrix from becoming a second copy that silently falls behind.
+      - id: list
+        run: echo "matrix=$(make projects | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+
+  check:
+    name: ${{ matrix.project }}
+    needs: projects
+    runs-on: ubuntu-latest
+    strategy:
+      # One project failing should not hide the state of the others.
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.projects.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          cache-dependency-glob: ${{ matrix.project }}/uv.lock
+
+      # lint + test. lemon's test target brings up MySQL through compose first;
+      # ubuntu runners ship the Docker engine and compose, so the target needs
+      # no CI-specific variant. uv run syncs the project, so no install step.
+      - run: make -C ${{ matrix.project }} check

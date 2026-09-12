@@ -5,7 +5,7 @@
 PROJECTS := chatbot lemon mathparser
 
 .DEFAULT_GOAL := help
-.PHONY: help check install test lint format clean
+.PHONY: help projects check install test lint format clean
 
 help:  ## Show this help
 	@printf 'Runs the target in every project: %s\n\n' "$(PROJECTS)"
@@ -15,8 +15,12 @@ help:  ## Show this help
 		test    "Run every project's tests" \
 		lint    "Check formatting and lint rules everywhere" \
 		format  "Apply formatting and safe lint fixes everywhere" \
-		clean   "Delete caches and build artefacts everywhere"
+		clean   "Delete caches and build artefacts everywhere" \
+		projects "Print the project list, one per line (CI reads this)"
 	@printf '\nRun a single project with make -C, for example: make -C lemon test\n'
+
+projects:  ## Print the project list, one per line
+	@printf '%s\n' $(PROJECTS)
 
 check install test lint format clean:
 	@for project in $(PROJECTS); do \
