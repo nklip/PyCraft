@@ -1,15 +1,18 @@
 # AGENTS.md
 
 PyCraft is a collection of independent Python applications: `chatbot`, `lemon`,
-and `mathparser`. Each owns its virtual environment, dependencies, and
+`mathparser`, and `mcp`. Each owns its virtual environment, dependencies, and
 `README.md`. Nothing is shared between them, so changes to one project should
 not require touching another.
+
+`notebooks` sits alongside them but is not one of them: it holds Jupyter
+notebooks, not an application, and none of the conventions below apply to it.
 
 Per-project setup and commands live in that project's `README.md`.
 
 ## Project conventions
 
-All three projects share the same shape. A fourth should follow it rather than
+All four projects share the same shape. A fifth should follow it rather than
 invent its own.
 
 - **Follow established Python industry practices.** Validate every decision
@@ -31,15 +34,27 @@ invent its own.
 - **`make` is the task runner.** Every project answers to the same verbs:
   `install`, `run`, `test`, `coverage`, `lint`, `format`, `check`, and `clean`.
   Lemon adds database and Django targets on top. The repository root has a
-  `Makefile` that runs any shared target across all three.
+  `Makefile` that runs any shared target across all four, and its `PROJECTS`
+  variable is the single list of them — CI reads it rather than keeping a copy.
 - **`run.sh` starts the application from scratch and never runs tests.** It
   checks its prerequisites, creates `.env` from `.env.example` when missing,
   syncs dependencies, and execs the server. Testing is `make test` — a launcher
   that doubles as a test runner is the pattern this repository moved away from.
 - **Configuration is a single `.env` per project**, git-ignored, with a
   committed `.env.example` template. Nothing sources shell profile scripts.
+  A project that needs no configuration has neither file; mathparser is the
+  one such project.
 - **`ruff` handles both linting and formatting**, configured in `pyproject.toml`.
 - **Tests run on pytest**, even where the test classes are `unittest.TestCase`.
+- **CI runs `make check`, and nothing else.** `.github/workflows/ci.yml` gives
+  each project a job that checks out, installs uv, and runs that one target, so
+  CI exercises the same path a developer does instead of reimplementing it. A
+  project needing a service brings it up from its own `compose.yaml` inside
+  `make test`, the way lemon starts MySQL; GitHub's Linux runners ship the
+  Docker engine and compose, so no CI-specific variant is needed.
+- **Dependabot opens the upgrade pull requests**, configured in
+  `.github/dependabot.yml` against every project's `uv.lock`. Minor and patch
+  bumps are grouped per project; majors arrive on their own.
 
 ## Documentation conventions
 
