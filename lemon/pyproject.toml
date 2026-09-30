@@ -8,8 +8,8 @@ dependencies = [
     "django-environ>=0.14.0",
     "djangorestframework>=3.18.1",
     "djoser>=2.3.4",
-    "markdown>=3.10.3",
-    "mysqlclient>=2.2.8",
+    "markdown>=3.11",
+    "mysqlclient>=2.3.0",
 ]
 
 [dependency-groups]
@@ -21,13 +21,20 @@ test = [
 dev = [
     { include-group = "test" },
     "django-debug-toolbar>=8.0.0",
-    "ruff>=0.16.7",
+    "ruff>=0.16.9",
 ]
 
 [tool.uv]
 # Lemon is a deployable application, not an installable distribution, so uv
 # manages its dependencies without building the project itself.
 package = false
+# djoser caps social-auth-app-django below 6, and every 5.x release caps
+# social-auth-core below 5.0.0, the first release to fix CVE-2026-57175 through
+# CVE-2026-57179. Lemon mounts djoser's user and token URLs, not its social
+# ones, so neither package is ever imported and lifting the cap changes no code
+# lemon runs. Remove this once a djoser release allows 6.x:
+# https://github.com/sunscrapers/djoser/issues/924
+override-dependencies = ["social-auth-app-django>=6.0.1"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"

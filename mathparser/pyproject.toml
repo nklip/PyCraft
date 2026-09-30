@@ -13,7 +13,7 @@ test = [
 ]
 dev = [
     { include-group = "test" },
-    "ruff>=0.16.7",
+    "ruff>=0.16.9",
 ]
 
 [tool.uv]
