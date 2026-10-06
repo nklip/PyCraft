@@ -6,7 +6,7 @@ requires-python = ">=3.14"
 dependencies = [
     # Anthropic's Python SDK, behind the claude mode. Optional at runtime in the
     # sense that matters: with no API key the mode says so and the rest works.
-    "anthropic>=1.9.0",
+    "anthropic>=1.11.0",
     "fastapi>=0.142.2",
     # Backs starlette's Jinja2Templates
     "jinja2>=3.1.6",
@@ -15,7 +15,7 @@ dependencies = [
     "uvicorn>=0.54.0",
     # uvicorn's WebSocket protocol implementation. The test client does not use
     # it, so tests pass without it while the real server rejects upgrades.
-    "websockets>=17.1",
+    "websockets>=17.2",
 ]
 
 [dependency-groups]
@@ -29,7 +29,7 @@ test = [
 ]
 dev = [
     { include-group = "test" },
-    "ruff>=0.16.9",
+    "ruff>=0.16.10",
 ]
 
 [tool.uv]

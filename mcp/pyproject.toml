@@ -7,13 +7,13 @@ description = "Command-line MCP chat client and document server built on the Ant
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "anthropic>=1.9.0",
+    "anthropic>=1.11.0",
     "mcp[cli]>=2.2.0",
     "prompt-toolkit>=3.0.53",
     # Declares the tool schemas in mcp_server.py. It arrives through the mcp
     # SDK as well, but this project imports it directly.
     "pydantic>=2.13.5",
-    "python-dotenv>=1.2.3",
+    "python-dotenv>=1.2.4",
 ]
 
 [dependency-groups]
@@ -24,7 +24,7 @@ test = [
 ]
 dev = [
     { include-group = "test" },
-    "ruff>=0.16.9",
+    "ruff>=0.16.10",
 ]
 
 [tool.uv]
