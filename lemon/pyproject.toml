@@ -4,11 +4,11 @@ version = "0.1.0"
 description = "Little Lemon restaurant backend built with Django and Django REST Framework."
 requires-python = ">=3.14"
 dependencies = [
-    "django>=6.1.1",
+    "django>=6.1.2",
     "django-environ>=0.14.0",
-    "djangorestframework>=3.18.1",
-    "djoser>=2.3.4",
-    "markdown>=3.11",
+    "djangorestframework>=3.18.3",
+    "djoser>=2.3.5",
+    "markdown>=3.11.2",
     "mysqlclient>=2.3.0",
 ]
 
@@ -21,7 +21,7 @@ test = [
 dev = [
     { include-group = "test" },
     "django-debug-toolbar>=8.0.0",
-    "ruff>=0.16.9",
+    "ruff>=0.17.2",
 ]
 
 [tool.uv]

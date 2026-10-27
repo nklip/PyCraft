@@ -7,15 +7,15 @@ dependencies = [
     # Anthropic's Python SDK, behind the claude mode. Optional at runtime in the
     # sense that matters: with no API key the mode says so and the rest works.
     "anthropic>=1.9.0",
-    "fastapi>=0.142.2",
+    "fastapi>=0.162.0",
     # Backs starlette's Jinja2Templates
     "jinja2>=3.1.6",
-    "pydantic>=2.13.5",
-    "pydantic-settings>=2.15.0",
+    "pydantic>=2.14.1",
+    "pydantic-settings>=2.16.1",
     "uvicorn>=0.54.0",
     # uvicorn's WebSocket protocol implementation. The test client does not use
     # it, so tests pass without it while the real server rejects upgrades.
-    "websockets>=17.1",
+    "websockets>=17.3",
 ]
 
 [dependency-groups]
@@ -23,13 +23,13 @@ test = [
     # starlette's TestClient imports httpx2, and anthropic 1.x builds its errors
     # from httpx2 objects, which the claude client tests construct by hand. The
     # first httpx generation is gone from this project with anthropic 0.x.
-    "httpx2>=2.13.1",
+    "httpx2>=2.16.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
 ]
 dev = [
     { include-group = "test" },
-    "ruff>=0.16.9",
+    "ruff>=0.17.2",
 ]
 
 [tool.uv]
