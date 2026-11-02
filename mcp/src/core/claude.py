@@ -28,17 +28,17 @@ class Claude:
         self,
         messages,
         system=None,
-        temperature=1.0,
         stop_sequences=None,
         tools=None,
         thinking=False,
         thinking_budget=1024,
     ) -> Message:
+        # No temperature, top_p or top_k: API version 2026-10-21, which anthropic
+        # 2.x sends, rejects a request carrying any of them, even at the default.
         params = {
             "model": self.model,
             "max_tokens": 8000,
             "messages": messages,
-            "temperature": temperature,
             "stop_sequences": stop_sequences or [],
         }
 

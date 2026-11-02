@@ -86,6 +86,15 @@ def test_chat_omits_optional_parameters_by_default(claude):
     assert "thinking" not in params
 
 
+def test_chat_sends_no_sampling_parameters(claude):
+    """API version 2026-10-21, which anthropic 2.x sends, rejects a request that
+    carries temperature, top_p or top_k with a 400, even at the default value."""
+    claude.chat(messages=[], system="be brief", tools=[{"name": "read"}], thinking=True)
+
+    params = claude.client.messages.calls[0]
+    assert not {"temperature", "top_p", "top_k"} & params.keys()
+
+
 def test_chat_includes_optional_parameters_when_asked(claude):
     claude.chat(messages=[], system="be brief", tools=[{"name": "read"}], thinking=True)
 

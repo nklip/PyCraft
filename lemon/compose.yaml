@@ -11,7 +11,12 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      # Over TCP, not the socket that `-h localhost` means. On an empty volume
+      # the image first runs a temporary server with networking off while it
+      # creates the database; a socket ping passes against that one, so
+      # `--wait` returned before anything listened on 3306 and the tests lost
+      # the connection (MySQL error 2013). Only the real server answers on TCP.
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --protocol=tcp -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
       interval: 5s
       timeout: 5s
       retries: 20
