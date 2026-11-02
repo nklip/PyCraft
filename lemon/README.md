@@ -105,7 +105,7 @@ The launcher:
 1. Verifies that uv and Docker are available.
 2. Creates `.env` from `.env.example` if it is missing.
 3. Syncs `lemon/.venv` against `pyproject.toml`.
-4. Starts the MySQL 8.4 LTS container and waits for it to become healthy.
+4. Starts the MySQL 9.7 LTS container and waits for it to become healthy.
 5. Applies Django database migrations.
 6. Loads sample categories, cuisines, and meals when the meal table is empty.
 7. Starts the Django development server.
