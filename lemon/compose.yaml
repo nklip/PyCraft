@@ -1,6 +1,8 @@
 services:
   mysql:
-    image: mysql:8.4
+    # The current LTS line. An existing 8.4 data volume upgrades in place on the
+    # first start; MySQL cannot downgrade it back to 8.4 afterwards.
+    image: mysql:9.7
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-lemon}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mysql_fid}
