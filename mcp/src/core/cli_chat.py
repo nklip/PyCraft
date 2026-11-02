@@ -84,6 +84,14 @@ class CliChat(Chat):
         self.messages.append({"role": "user", "content": prompt})
 
 
+def _message_param(role: str, content) -> MessageParam:
+    # anthropic 2.x types MessageParam as one TypedDict per role, so a dict whose
+    # role is a variable matches none of them: each role gets its own literal.
+    if role == "user":
+        return {"role": "user", "content": content}
+    return {"role": "assistant", "content": content}
+
+
 def convert_prompt_message_to_message_param(
     prompt_message: PromptMessage,
 ) -> MessageParam:
@@ -104,7 +112,7 @@ def convert_prompt_message_to_message_param(
                 if isinstance(content, dict)
                 else getattr(content, "text", "")
             )
-            return {"role": role, "content": content_text}
+            return _message_param(role, content_text)
 
     if isinstance(content, list):
         text_blocks = []
@@ -125,9 +133,9 @@ def convert_prompt_message_to_message_param(
                     text_blocks.append({"type": "text", "text": item_text})
 
         if text_blocks:
-            return {"role": role, "content": text_blocks}
+            return _message_param(role, text_blocks)
 
-    return {"role": role, "content": ""}
+    return _message_param(role, "")
 
 
 def convert_prompt_messages_to_message_params(
