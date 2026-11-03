@@ -1,7 +1,16 @@
 from algs.list_node import ListNode
 
+# LeetCode 2: Add Two Numbers
+# https://leetcode.com/problems/add-two-numbers/description/
+# Task: Add the nonnegative integers encoded by two nonempty linked lists.
+# Each node holds one digit, with the least significant digit first. Return
+# the sum in the same linked-list format. Inputs have no leading zeros unless
+# the number itself is zero.
 class Solution:
 
+    # Time Complexity: O(max(n, m)), processing each digit once.
+    # Space Complexity: O(max(n, m)) including output; O(1) auxiliary space.
+    # n and m = the number of nodes in l1 and l2.
     def addTwoNumbers(self, l1: ListNode | None, l2: ListNode | None) -> ListNode | None:
         root = None
         last = None
