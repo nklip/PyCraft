@@ -1,0 +1,117 @@
+# Algorithms
+<sub>[Back to PyCraft](../README.md#pycraft)</sub>
+
+## Contents
+
+1. [Overview](#overview)
+2. [Project structure](#project-structure)
+3. [Solutions](#solutions)
+4. [Requirements](#requirements)
+5. [Tests](#tests)
+6. [Adding a solution](#adding-a-solution)
+
+## Overview
+<sub>[Back to top](#algorithms)</sub>
+
+Python solutions to LeetCode exercises, grouped by difficulty. Each solution
+file includes the problem number, a link to the original task, and a short task
+description before its `Solution` class. `Time Complexity` and `Space Complexity`
+comments above the entry method describe the implementation in that file and
+define the input-size variables they use.
+
+Space estimates account for the data the implementation allocates, including
+returned collections where stated. Auxiliary space means memory used in addition
+to the input and output. Tree solutions also account for stack depth and, when
+building paths, the strings retained during recursion.
+
+## Project structure
+<sub>[Back to top](#algorithms)</sub>
+
+```text
+algs/
+├── easy/
+├── medium/
+├── tests/
+│   ├── easy/
+│   └── medium/
+├── list_node.py
+├── README.md
+└── tree_node.py
+```
+
+Each exercise has its own module in a difficulty folder, with corresponding tests
+under `tests/`. [ListNode](list_node.py) and [TreeNode](tree_node.py) provide the
+node types used by the linked-list and binary-tree exercises.
+
+## Solutions
+<sub>[Back to top](#algorithms)</sub>
+
+| Difficulty | LeetCode problem | Implementation | Tests |
+| --- | --- | --- | --- |
+| Easy | [455. Assign Cookies](https://leetcode.com/problems/assign-cookies/description/) | [assign_cookies.py](easy/assign_cookies.py) | [Tests](tests/easy/test_assign_cookies.py) |
+| Easy | [844. Backspace String Compare](https://leetcode.com/problems/backspace-string-compare/description/) | [backspace_string_compare.py](easy/backspace_string_compare.py) | [Tests](tests/easy/test_backspace_string_compare.py) |
+| Easy | [110. Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree/description/) | [balanced_binary_tree.py](easy/balanced_binary_tree.py) | [Tests](tests/easy/test_balanced_binary_tree.py) |
+| Easy | [121. Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/) | [best_time_to_buy_and_sell_stock.py](easy/best_time_to_buy_and_sell_stock.py) | [Tests](tests/easy/test_best_time_to_buy_and_sell_stock.py) |
+| Easy | [704. Binary Search](https://leetcode.com/problems/binary-search/description/) | [binary_search.py](easy/binary_search.py) | [Tests](tests/easy/test_binary_search.py) |
+| Easy | [94. Binary Tree Inorder Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/description/) | [binary_tree_inorder_traversal.py](easy/binary_tree_inorder_traversal.py) | [Tests](tests/easy/test_binary_tree_inorder_traversal.py) |
+| Easy | [257. Binary Tree Paths](https://leetcode.com/problems/binary-tree-paths/description/) | [binary_tree_paths.py](easy/binary_tree_paths.py) | [Tests](tests/easy/test_binary_tree_paths.py) |
+| Easy | [145. Binary Tree Postorder Traversal](https://leetcode.com/problems/binary-tree-postorder-traversal/description/) | [binary_tree_postorder_traversal.py](easy/binary_tree_postorder_traversal.py) | [Tests](tests/easy/test_binary_tree_postorder_traversal.py) |
+| Easy | [144. Binary Tree Preorder Traversal](https://leetcode.com/problems/binary-tree-preorder-traversal/description/) | [binary_tree_preorder_traversal.py](easy/binary_tree_preorder_traversal.py) | [Tests](tests/easy/test_binary_tree_preorder_traversal.py) |
+| Easy | [1346. Check If N and Its Double Exist](https://leetcode.com/problems/check-if-n-and-its-double-exist/description/) | [check_if_n_and_its_double_exist.py](easy/check_if_n_and_its_double_exist.py) | [Tests](tests/easy/test_check_if_n_and_its_double_exist.py) |
+| Easy | [70. Climbing Stairs](https://leetcode.com/problems/climbing-stairs/description/) | [climbing_stairs.py](easy/climbing_stairs.py) | [Tests](tests/easy/test_climbing_stairs.py) |
+| Easy | [217. Contains Duplicate](https://leetcode.com/problems/contains-duplicate/description/) | [contains_duplicate.py](easy/contains_duplicate.py) | [Tests](tests/easy/test_contains_duplicate.py) |
+| Easy | [219. Contains Duplicate II](https://leetcode.com/problems/contains-duplicate-ii/description/) | [contains_duplicate_ii.py](easy/contains_duplicate_ii.py) | [Tests](tests/easy/test_contains_duplicate_ii.py) |
+| Easy | [108. Convert Sorted Array to Binary Search Tree](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/description/) | [convert_sorted_array_to_binary_search_tree.py](easy/convert_sorted_array_to_binary_search_tree.py) | [Tests](tests/easy/test_convert_sorted_array_to_binary_search_tree.py) |
+| Easy | [2824. Count Pairs Whose Sum is Less than Target](https://leetcode.com/problems/count-pairs-whose-sum-is-less-than-target/description/) | [count_pairs_whose_sum_is_less_than_target.py](easy/count_pairs_whose_sum_is_less_than_target.py) | [Tests](tests/easy/test_count_pairs_whose_sum_is_less_than_target.py) |
+| Easy | [1652. Defuse the Bomb](https://leetcode.com/problems/defuse-the-bomb/description/) | [defuse_the_bomb.py](easy/defuse_the_bomb.py) | [Tests](tests/easy/test_defuse_the_bomb.py) |
+| Easy | [1089. Duplicate Zeros](https://leetcode.com/problems/duplicate-zeros/description/) | [duplicate_zeros.py](easy/duplicate_zeros.py) | [Tests](tests/easy/test_duplicate_zeros.py) |
+| Easy | [1. Two Sum](https://leetcode.com/problems/two-sum/description/) | [two_sum.py](easy/two_sum.py) | [Tests](tests/easy/test_two_sum.py) |
+| Medium | [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/) | [add_two_numbers.py](medium/add_two_numbers.py) | [Tests](tests/medium/test_two_numbers.py) |
+
+## Requirements
+<sub>[Back to top](#algorithms)</sub>
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/). The test
+commands below request Python 3.14 and pytest through uv. The solutions themselves
+use only Python's standard library and the local node helpers; no `.env` is needed.
+
+This exercise collection currently has no `pyproject.toml`, `uv.lock`, or
+`Makefile`. The commands use [uv's `--no-project` mode](https://docs.astral.sh/uv/reference/cli/#uv-run--no-project)
+and request pytest with `--with`, so no manual environment setup is needed.
+The pytest version is not locked here.
+
+## Tests
+<sub>[Back to top](#algorithms)</sub>
+
+Run the full suite from the top-level `PyCraft` directory:
+
+```bash
+uv run --no-project --python 3.14 --with pytest python -m pytest algs/tests
+```
+
+Run one exercise's tests:
+
+```bash
+uv run --no-project --python 3.14 --with pytest python -m pytest algs/tests/easy/test_two_sum.py
+```
+
+The tests use `unittest.TestCase` and run through pytest. Using
+[`python -m pytest`](https://docs.pytest.org/en/stable/how-to/usage.html#calling-pytest-through-python-m-pytest)
+adds the current directory to Python's import path, allowing imports such as
+`from algs.tree_node import TreeNode` when run from the repository root.
+
+The root `make check` covers the four applications listed in the root `Makefile`;
+run the command above to check this collection separately.
+
+## Adding a solution
+<sub>[Back to top](#algorithms)</sub>
+
+1. Add a module named after the problem under the appropriate difficulty folder.
+2. Put the LeetCode number, source link, and task summary before `class Solution`.
+3. Add `Time Complexity` and `Space Complexity` comments above the entry method.
+   Define the variables and account for sorting, temporary collections, recursion,
+   and output allocation used by the implementation.
+4. Add tests in the matching folder under `tests/`, including relevant edge cases.
+   For a bug fix, verify that the regression test fails with the old behavior.
+5. Add the problem, implementation, and test links to the table above, then run
+   the test suite from the repository root.
