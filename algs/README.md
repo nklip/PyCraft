@@ -15,9 +15,10 @@
 
 Python solutions to LeetCode exercises, grouped by difficulty. Each solution
 file includes the problem number, a link to the original task, and a short task
-description before its `Solution` class. `Time Complexity` and `Space Complexity`
+description before its solution class. `Time Complexity` and `Space Complexity`
 comments above the entry method describe the implementation in that file and
-define the input-size variables they use.
+define the input-size variables they use. Data structures document total storage
+at the class level and time complexity above each public operation.
 
 Space estimates account for the data the implementation allocates, including
 returned collections where stated. Auxiliary space means memory used in addition
@@ -71,6 +72,14 @@ node types used by the linked-list and binary-tree exercises.
 | Easy | [744. Find Smallest Letter Greater Than Target](https://leetcode.com/problems/find-smallest-letter-greater-than-target/description/) | [find_smallest_letter_greater_than_target.py](easy/find_smallest_letter_greater_than_target.py) | [Tests](tests/easy/test_find_smallest_letter_greater_than_target.py) |
 | Easy | [2269. Find the K-Beauty of a Number](https://leetcode.com/problems/find-the-k-beauty-of-a-number/description/) | [find_the_k_beauty_of_number.py](easy/find_the_k_beauty_of_number.py) | [Tests](tests/easy/test_find_the_k_beauty_of_number.py) |
 | Easy | [278. First Bad Version](https://leetcode.com/problems/first-bad-version/description/) | [first_bad_version.py](easy/first_bad_version.py) | [Tests](tests/easy/test_first_bad_version.py) |
+| Easy | [374. Guess Number Higher or Lower](https://leetcode.com/problems/guess-number-higher-or-lower/description/) | [guess_number_higher_or_lower.py](easy/guess_number_higher_or_lower.py) | [Tests](tests/easy/test_guess_number_higher_or_lower.py) |
+| Easy | [202. Happy Number](https://leetcode.com/problems/happy-number/description/) | [happy_number.py](easy/happy_number.py) | [Tests](tests/easy/test_happy_number.py) |
+| Easy | [232. Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/description/) | [implement_queue_using_stacks.py](easy/implement_queue_using_stacks.py) | [Tests](tests/easy/test_implement_queue_using_stacks.py) |
+| Easy | [225. Implement Stack using Queues](https://leetcode.com/problems/implement-stack-using-queues/description/) | [implement_stack_using_queues.py](easy/implement_stack_using_queues.py) | [Tests](tests/easy/test_implement_stack_using_queues.py) |
+| Easy | [160. Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/description/) | [intersection_of_two_linked_lists.py](easy/intersection_of_two_linked_lists.py) | [Tests](tests/easy/test_intersection_of_two_linked_lists.py) |
+| Easy | [226. Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/description/) | [invert_binary_tree.py](easy/invert_binary_tree.py) | [Tests](tests/easy/test_invert_binary_tree.py) |
+| Easy | [392. Is Subsequence](https://leetcode.com/problems/is-subsequence/description/) | [is_subsequence.py](easy/is_subsequence.py) | [Tests](tests/easy/test_is_subsequence.py) |
+| Easy | [205. Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/description/) | [isomorphic_strings.py](easy/isomorphic_strings.py) | [Tests](tests/easy/test_isomorphic_strings.py) |
 | Easy | [1. Two Sum](https://leetcode.com/problems/two-sum/description/) | [two_sum.py](easy/two_sum.py) | [Tests](tests/easy/test_two_sum.py) |
 | Medium | [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/) | [add_two_numbers.py](medium/add_two_numbers.py) | [Tests](tests/medium/test_two_numbers.py) |
 
@@ -113,10 +122,11 @@ run the command above to check this collection separately.
 <sub>[Back to top](#algorithms)</sub>
 
 1. Add a module named after the problem under the appropriate difficulty folder.
-2. Put the LeetCode number, source link, and task summary before `class Solution`.
+2. Put the LeetCode number, source link, and task summary before the solution class.
 3. Add `Time Complexity` and `Space Complexity` comments above the entry method.
    Define the variables and account for sorting, temporary collections, recursion,
-   and output allocation used by the implementation.
+   and output allocation used by the implementation. For data structures, document
+   total storage at the class level and time complexity above each public operation.
 4. Add tests in the matching folder under `tests/`, including relevant edge cases.
    For a bug fix, verify that the regression test fails with the old behavior.
 5. Add the problem, implementation, and test links to the table above, then run
