@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Little Lemon restaurant backend built with Django and Django REST Framework."
 requires-python = ">=3.14"
 dependencies = [
-    "django>=6.1.2",
+    "django>=6.1.3",
     "django-environ>=0.14.0",
     "djangorestframework>=3.18.3",
     # Lemon mounts djoser's user and token URLs only. Its social login cannot
@@ -13,7 +13,7 @@ dependencies = [
     # validates it again and finds it spent. Resolve that before mounting
     # djoser.social.urls.
     "djoser>=2.3.5",
-    "markdown>=3.11.2",
+    "markdown>=3.11.3",
     "mysqlclient>=2.3.0",
 ]
 
@@ -26,7 +26,7 @@ test = [
 dev = [
     { include-group = "test" },
     "django-debug-toolbar>=8.0.0",
-    "ruff>=0.17.3",
+    "ruff>=0.17.4",
 ]
 
 [tool.uv]
