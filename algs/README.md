@@ -13,8 +13,8 @@
 ## Overview
 <sub>[Back to top](#algorithms)</sub>
 
-Python solutions to LeetCode exercises, grouped by difficulty. Each solution
-file includes the problem number, a link to the original task, and a short task
+Python solutions to LeetCode exercises, mostly grouped by difficulty. Each
+solution file includes the problem number, a link to the original task, and a short task
 description before its solution class. `Time Complexity` and `Space Complexity`
 comments above the entry method describe the implementation in that file and
 define the input-size variables they use. Data structures document total storage
@@ -34,15 +34,19 @@ algs/
 ├── medium/
 ├── tests/
 │   ├── easy/
-│   └── medium/
+│   ├── medium/
+│   └── test_majority_element.py
 ├── list_node.py
+├── majority_element.py
 ├── README.md
 └── tree_node.py
 ```
 
-Each exercise has its own module in a difficulty folder, with corresponding tests
-under `tests/`. [ListNode](list_node.py) and [TreeNode](tree_node.py) provide the
-node types used by the linked-list and binary-tree exercises.
+Each exercise has its own module, with corresponding tests under `tests/`.
+Most solutions live in difficulty folders; [Majority Element](majority_element.py)
+currently lives at the collection root. [ListNode](list_node.py) and
+[TreeNode](tree_node.py) provide the node types used by the linked-list and
+binary-tree exercises.
 
 ## Solutions
 <sub>[Back to top](#algorithms)</sub>
@@ -80,6 +84,12 @@ node types used by the linked-list and binary-tree exercises.
 | Easy | [226. Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/description/) | [invert_binary_tree.py](easy/invert_binary_tree.py) | [Tests](tests/easy/test_invert_binary_tree.py) |
 | Easy | [392. Is Subsequence](https://leetcode.com/problems/is-subsequence/description/) | [is_subsequence.py](easy/is_subsequence.py) | [Tests](tests/easy/test_is_subsequence.py) |
 | Easy | [205. Isomorphic Strings](https://leetcode.com/problems/isomorphic-strings/description/) | [isomorphic_strings.py](easy/isomorphic_strings.py) | [Tests](tests/easy/test_isomorphic_strings.py) |
+| Easy | [58. Length of Last Word](https://leetcode.com/problems/length-of-last-word/description/) | [length_of_last_word.py](easy/length_of_last_word.py) | [Tests](tests/easy/test_length_of_last_word.py) |
+| Easy | [141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/description/) | [linked_list_cycle.py](easy/linked_list_cycle.py) | [Tests](tests/easy/test_linked_list_cycle.py) |
+| Easy | [14. Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/description/) | [longest_common_prefix.py](easy/longest_common_prefix.py) | [Tests](tests/easy/test_longest_common_prefix.py) |
+| Easy | [594. Longest Harmonious Subsequence](https://leetcode.com/problems/longest-harmonious-subsequence/description/) | [longest_harmonious_subsequence.py](easy/longest_harmonious_subsequence.py) | [Tests](tests/easy/test_longest_harmonious_subsequence.py) |
+| Easy | [169. Majority Element](https://leetcode.com/problems/majority-element/description/) | [majority_element.py](majority_element.py) | [Tests](tests/test_majority_element.py) |
+| Easy | [643. Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/description/) | [maximum_average_subarray_i.py](easy/maximum_average_subarray_i.py) | [Tests](tests/easy/test_maximum_average_subarray_i.py) |
 | Easy | [1. Two Sum](https://leetcode.com/problems/two-sum/description/) | [two_sum.py](easy/two_sum.py) | [Tests](tests/easy/test_two_sum.py) |
 | Medium | [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/) | [add_two_numbers.py](medium/add_two_numbers.py) | [Tests](tests/medium/test_two_numbers.py) |
 
