@@ -90,6 +90,12 @@ binary-tree exercises.
 | Easy | [594. Longest Harmonious Subsequence](https://leetcode.com/problems/longest-harmonious-subsequence/description/) | [longest_harmonious_subsequence.py](easy/longest_harmonious_subsequence.py) | [Tests](tests/easy/test_longest_harmonious_subsequence.py) |
 | Easy | [169. Majority Element](https://leetcode.com/problems/majority-element/description/) | [majority_element.py](majority_element.py) | [Tests](tests/test_majority_element.py) |
 | Easy | [643. Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/description/) | [maximum_average_subarray_i.py](easy/maximum_average_subarray_i.py) | [Tests](tests/easy/test_maximum_average_subarray_i.py) |
+| Easy | [104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/description/) | [maximum_depth_of_binary_tree.py](easy/maximum_depth_of_binary_tree.py) | [Tests](tests/easy/test_maximum_depth_of_binary_tree.py) |
+| Easy | [88. Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/description/) | [merge_sorted_array.py](easy/merge_sorted_array.py) | [Tests](tests/easy/test_merge_sorted_array.py) |
+| Easy | [1768. Merge Strings Alternately](https://leetcode.com/problems/merge-strings-alternately/description/) | [merge_strings_alternately.py](easy/merge_strings_alternately.py) | [Tests](tests/easy/test_merge_strings_alternately.py) |
+| Easy | [21. Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/description/) | [merge_two_sorted_lists.py](easy/merge_two_sorted_lists.py) | [Tests](tests/easy/test_merge_two_sorted_lists.py) |
+| Easy | [876. Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/description/) | [middle_of_the_linked_list.py](easy/middle_of_the_linked_list.py) | [Tests](tests/easy/test_middle_of_the_linked_list.py) |
+| Easy | [2540. Minimum Common Value](https://leetcode.com/problems/minimum-common-value/description/) | [minimum_common_value.py](easy/minimum_common_value.py) | [Tests](tests/easy/test_minimum_common_value.py) |
 | Easy | [1. Two Sum](https://leetcode.com/problems/two-sum/description/) | [two_sum.py](easy/two_sum.py) | [Tests](tests/easy/test_two_sum.py) |
 | Medium | [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/) | [add_two_numbers.py](medium/add_two_numbers.py) | [Tests](tests/medium/test_two_numbers.py) |
 
