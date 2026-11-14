@@ -102,6 +102,14 @@ binary-tree exercises.
 | Easy | [268. Missing Number](https://leetcode.com/problems/missing-number/description/) | [missing_number.py](easy/missing_number.py) | [Tests](tests/easy/test_missing_number.py) |
 | Easy | [283. Move Zeroes](https://leetcode.com/problems/move-zeroes/description/) | [move_zeroes.py](easy/move_zeroes.py) | [Tests](tests/easy/test_move_zeroes.py) |
 | Easy | [191. Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/description/) | [number_of_1_bits.py](easy/number_of_1_bits.py) | [Tests](tests/easy/test_number_of_1_bits.py) |
+| Easy | [234. Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/description/) | [palindrome_linked_list.py](easy/palindrome_linked_list.py) | [Tests](tests/easy/test_palindrome_linked_list.py) |
+| Easy | [9. Palindrome Number](https://leetcode.com/problems/palindrome-number/description/) | [palindrome_number.py](easy/palindrome_number.py) | [Tests](tests/easy/test_palindrome_number.py) |
+| Easy | [118. Pascal's Triangle](https://leetcode.com/problems/pascals-triangle/description/) | [pascals_triangle.py](easy/pascals_triangle.py) | [Tests](tests/easy/test_pascals_triangle.py) |
+| Easy | [119. Pascal's Triangle II](https://leetcode.com/problems/pascals-triangle-ii/description/) | [pascals_triangle_ii.py](easy/pascals_triangle_ii.py) | [Tests](tests/easy/test_pascals_triangle_ii.py) |
+| Easy | [112. Path Sum](https://leetcode.com/problems/path-sum/description/) | [path_sum.py](easy/path_sum.py) | [Tests](tests/easy/test_path_sum.py) |
+| Easy | [66. Plus One](https://leetcode.com/problems/plus-one/description/) | [plus_one.py](easy/plus_one.py) | [Tests](tests/easy/test_plus_one.py) |
+| Easy | [2848. Points That Intersect With Cars](https://leetcode.com/problems/points-that-intersect-with-cars/description/) | [points_that_intersect_with_cars.py](easy/points_that_intersect_with_cars.py) | [Tests](tests/easy/test_points_that_intersect_with_cars.py) |
+| Easy | [231. Power of Two](https://leetcode.com/problems/power-of-two/description/) | [power_of_two.py](easy/power_of_two.py) | [Tests](tests/easy/test_power_of_two.py) |
 | Easy | [1. Two Sum](https://leetcode.com/problems/two-sum/description/) | [two_sum.py](easy/two_sum.py) | [Tests](tests/easy/test_two_sum.py) |
 | Medium | [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/) | [add_two_numbers.py](medium/add_two_numbers.py) | [Tests](tests/medium/test_two_numbers.py) |
 
