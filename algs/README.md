@@ -110,6 +110,11 @@ binary-tree exercises.
 | Easy | [66. Plus One](https://leetcode.com/problems/plus-one/description/) | [plus_one.py](easy/plus_one.py) | [Tests](tests/easy/test_plus_one.py) |
 | Easy | [2848. Points That Intersect With Cars](https://leetcode.com/problems/points-that-intersect-with-cars/description/) | [points_that_intersect_with_cars.py](easy/points_that_intersect_with_cars.py) | [Tests](tests/easy/test_points_that_intersect_with_cars.py) |
 | Easy | [231. Power of Two](https://leetcode.com/problems/power-of-two/description/) | [power_of_two.py](easy/power_of_two.py) | [Tests](tests/easy/test_power_of_two.py) |
+| Easy | [26. Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/) | [remove_duplicates_from_sorted_array.py](easy/remove_duplicates_from_sorted_array.py) | [Tests](tests/easy/test_remove_duplicates_from_sorted_array.py) |
+| Easy | [83. Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/description/) | [remove_duplicates_from_sorted_list.py](easy/remove_duplicates_from_sorted_list.py) | [Tests](tests/easy/test_remove_duplicates_from_sorted_list.py) |
+| Easy | [27. Remove Element](https://leetcode.com/problems/remove-element/description/) | [remove_element.py](easy/remove_element.py) | [Tests](tests/easy/test_remove_element.py) |
+| Easy | [203. Remove Linked List Elements](https://leetcode.com/problems/remove-linked-list-elements/description/) | [remove_linked_list_elements.py](easy/remove_linked_list_elements.py) | [Tests](tests/easy/test_remove_linked_list_elements.py) |
+| Easy | [190. Reverse Bits](https://leetcode.com/problems/reverse-bits/description/) | [reverse_bits.py](easy/reverse_bits.py) | [Tests](tests/easy/test_reverse_bits.py) |
 | Easy | [1. Two Sum](https://leetcode.com/problems/two-sum/description/) | [two_sum.py](easy/two_sum.py) | [Tests](tests/easy/test_two_sum.py) |
 | Medium | [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/) | [add_two_numbers.py](medium/add_two_numbers.py) | [Tests](tests/medium/test_two_numbers.py) |
 
