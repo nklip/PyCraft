@@ -13,7 +13,7 @@
 ## Overview
 <sub>[Back to top](#algorithms)</sub>
 
-Python solutions to LeetCode exercises, mostly grouped by difficulty. Each
+Python solutions to LeetCode exercises, grouped by difficulty. Each
 solution file includes the problem number, a link to the original task, and a short task
 description before its solution class. `Time Complexity` and `Space Complexity`
 comments above the entry method describe the implementation in that file and
@@ -34,17 +34,14 @@ algs/
 ├── medium/
 ├── tests/
 │   ├── easy/
-│   ├── medium/
-│   └── test_majority_element.py
+│   └── medium/
 ├── list_node.py
-├── majority_element.py
 ├── README.md
 └── tree_node.py
 ```
 
 Each exercise has its own module, with corresponding tests under `tests/`.
-Most solutions live in difficulty folders; [Majority Element](majority_element.py)
-currently lives at the collection root. [ListNode](list_node.py) and
+Solutions live in difficulty folders. [ListNode](list_node.py) and
 [TreeNode](tree_node.py) provide the node types used by the linked-list and
 binary-tree exercises.
 
@@ -88,7 +85,7 @@ binary-tree exercises.
 | Easy | [141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/description/) | [linked_list_cycle.py](easy/linked_list_cycle.py) | [Tests](tests/easy/test_linked_list_cycle.py) |
 | Easy | [14. Longest Common Prefix](https://leetcode.com/problems/longest-common-prefix/description/) | [longest_common_prefix.py](easy/longest_common_prefix.py) | [Tests](tests/easy/test_longest_common_prefix.py) |
 | Easy | [594. Longest Harmonious Subsequence](https://leetcode.com/problems/longest-harmonious-subsequence/description/) | [longest_harmonious_subsequence.py](easy/longest_harmonious_subsequence.py) | [Tests](tests/easy/test_longest_harmonious_subsequence.py) |
-| Easy | [169. Majority Element](https://leetcode.com/problems/majority-element/description/) | [majority_element.py](majority_element.py) | [Tests](tests/test_majority_element.py) |
+| Easy | [169. Majority Element](https://leetcode.com/problems/majority-element/description/) | [majority_element.py](easy/majority_element.py) | [Tests](tests/easy/test_majority_element.py) |
 | Easy | [643. Maximum Average Subarray I](https://leetcode.com/problems/maximum-average-subarray-i/description/) | [maximum_average_subarray_i.py](easy/maximum_average_subarray_i.py) | [Tests](tests/easy/test_maximum_average_subarray_i.py) |
 | Easy | [104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/description/) | [maximum_depth_of_binary_tree.py](easy/maximum_depth_of_binary_tree.py) | [Tests](tests/easy/test_maximum_depth_of_binary_tree.py) |
 | Easy | [88. Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/description/) | [merge_sorted_array.py](easy/merge_sorted_array.py) | [Tests](tests/easy/test_merge_sorted_array.py) |
@@ -115,6 +112,10 @@ binary-tree exercises.
 | Easy | [27. Remove Element](https://leetcode.com/problems/remove-element/description/) | [remove_element.py](easy/remove_element.py) | [Tests](tests/easy/test_remove_element.py) |
 | Easy | [203. Remove Linked List Elements](https://leetcode.com/problems/remove-linked-list-elements/description/) | [remove_linked_list_elements.py](easy/remove_linked_list_elements.py) | [Tests](tests/easy/test_remove_linked_list_elements.py) |
 | Easy | [190. Reverse Bits](https://leetcode.com/problems/reverse-bits/description/) | [reverse_bits.py](easy/reverse_bits.py) | [Tests](tests/easy/test_reverse_bits.py) |
+| Easy | [206. Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/description/) | [reverse_linked_list.py](easy/reverse_linked_list.py) | [Tests](tests/easy/test_reverse_linked_list.py) |
+| Easy | [344. Reverse String](https://leetcode.com/problems/reverse-string/description/) | [reverse_string.py](easy/reverse_string.py) | [Tests](tests/easy/test_reverse_string.py) |
+| Easy | [345. Reverse Vowels of a String](https://leetcode.com/problems/reverse-vowels-of-a-string/description/) | [reverse_vowels_of_string.py](easy/reverse_vowels_of_string.py) | [Tests](tests/easy/test_reverse_vowels_of_string.py) |
+| Easy | [13. Roman to Integer](https://leetcode.com/problems/roman-to-integer/description/) | [roman_to_integer.py](easy/roman_to_integer.py) | [Tests](tests/easy/test_roman_to_integer.py) |
 | Easy | [1. Two Sum](https://leetcode.com/problems/two-sum/description/) | [two_sum.py](easy/two_sum.py) | [Tests](tests/easy/test_two_sum.py) |
 | Medium | [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/) | [add_two_numbers.py](medium/add_two_numbers.py) | [Tests](tests/medium/test_two_numbers.py) |
 

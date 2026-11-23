@@ -1,6 +1,6 @@
 import unittest
 
-from algs.majority_element import Solution
+from algs.easy.majority_element import Solution
 
 
 class TestMajorityElement(unittest.TestCase):
