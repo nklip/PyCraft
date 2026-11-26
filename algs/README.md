@@ -116,6 +116,12 @@ binary-tree exercises.
 | Easy | [344. Reverse String](https://leetcode.com/problems/reverse-string/description/) | [reverse_string.py](easy/reverse_string.py) | [Tests](tests/easy/test_reverse_string.py) |
 | Easy | [345. Reverse Vowels of a String](https://leetcode.com/problems/reverse-vowels-of-a-string/description/) | [reverse_vowels_of_string.py](easy/reverse_vowels_of_string.py) | [Tests](tests/easy/test_reverse_vowels_of_string.py) |
 | Easy | [13. Roman to Integer](https://leetcode.com/problems/roman-to-integer/description/) | [roman_to_integer.py](easy/roman_to_integer.py) | [Tests](tests/easy/test_roman_to_integer.py) |
+| Easy | [100. Same Tree](https://leetcode.com/problems/same-tree/description/) | [same_tree.py](easy/same_tree.py) | [Tests](tests/easy/test_same_tree.py) |
+| Easy | [35. Search Insert Position](https://leetcode.com/problems/search-insert-position/description/) | [search_insert_position.py](easy/search_insert_position.py) | [Tests](tests/easy/test_search_insert_position.py) |
+| Easy | [136. Single Number](https://leetcode.com/problems/single-number/description/) | [single_number.py](easy/single_number.py) | [Tests](tests/easy/test_single_number.py) |
+| Easy | [69. Sqrt(x)](https://leetcode.com/problems/sqrtx/description/) | [sqrt.py](easy/sqrt.py) | [Tests](tests/easy/test_sqrt.py) |
+| Easy | [977. Squares of a Sorted Array](https://leetcode.com/problems/squares-of-a-sorted-array/description/) | [squares_of_sorted_array.py](easy/squares_of_sorted_array.py) | [Tests](tests/easy/test_squares_of_sorted_array.py) |
+| Easy | [1876. Substrings of Size Three with Distinct Characters](https://leetcode.com/problems/substrings-of-size-three-with-distinct-characters/description/) | [substrings_of_size_three_with_distinct_characters.py](easy/substrings_of_size_three_with_distinct_characters.py) | [Tests](tests/easy/test_substrings_of_size_three_with_distinct_characters.py) |
 | Easy | [1. Two Sum](https://leetcode.com/problems/two-sum/description/) | [two_sum.py](easy/two_sum.py) | [Tests](tests/easy/test_two_sum.py) |
 | Medium | [2. Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/) | [add_two_numbers.py](medium/add_two_numbers.py) | [Tests](tests/medium/test_two_numbers.py) |
 
